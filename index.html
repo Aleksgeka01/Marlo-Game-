@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Global Auto Auction — Luxury Casino</title>
+    <title>Global Auto Auction — Ultimate Casino Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-base: #07070a;
-            --bg-card: #121218;
-            --bg-card-hover: #1a1a24;
+            --bg-base: #050508;
+            --bg-card: #0e0e14;
+            --bg-card-hover: #161622;
             --gold: #f59e0b;
+            --gold-light: #fbbf24;
             --gold-gradient: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
-            --gold-border: rgba(245, 158, 11, 0.3);
-            --accent-green: #10b981;
+            --gold-border: rgba(245, 158, 11, 0.4);
+            --accent-neon: #ec4899;
+            --accent-cyan: #06b6d4;
             --text-main: #ffffff;
             --text-secondary: #9ca3af;
             --border-color: rgba(255, 255, 255, 0.08);
@@ -34,21 +36,23 @@
             height: 100vh;
             overflow: hidden;
         }
-        /* Top Header */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 12px 16px;
-            background: rgba(18, 18, 24, 0.85);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border-color);
+            background: rgba(14, 14, 20, 0.9);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--gold-border);
             z-index: 50;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
         }
         .user-level {
-            font-size: 13px;
-            font-weight: 700;
+            font-size: 12px;
+            font-weight: 800;
             color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .user-level span { color: var(--gold); }
         .stats-container {
@@ -60,17 +64,15 @@
             padding: 6px 12px;
             border-radius: 20px;
             font-size: 13px;
-            font-weight: 800;
+            font-weight: 900;
             display: flex;
             align-items: center;
             gap: 6px;
             border: 1px solid var(--border-color);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
-        .energy-badge { color: #f59e0b; }
-        .money-badge { color: #10b981; }
+        .energy-badge { color: #fbbf24; border-color: rgba(251,191,36,0.3); }
+        .money-badge { color: #10b981; border-color: rgba(16,185,129,0.3); }
 
-        /* Content Area */
         .content {
             flex: 1;
             overflow-y: auto;
@@ -90,20 +92,20 @@
         }
         .tab-content.active { display: flex; }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
+            from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .section-title {
             font-size: 18px;
-            font-weight: 800;
+            font-weight: 900;
             margin-bottom: 14px;
             align-self: flex-start;
-            color: #f3f4f6;
+            color: #fff;
             letter-spacing: -0.3px;
+            text-shadow: 0 2px 10px rgba(245,158,11,0.2);
         }
 
-        /* Country Selector */
         .country-selector {
             display: flex;
             gap: 8px;
@@ -120,7 +122,7 @@
             padding: 8px 14px;
             border-radius: 12px;
             font-size: 13px;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
             white-space: nowrap;
             display: flex;
@@ -129,12 +131,12 @@
             transition: all 0.2s;
         }
         .country-chip.active {
-            background: rgba(245, 158, 11, 0.15);
+            background: rgba(245, 158, 11, 0.2);
             border-color: var(--gold);
             color: var(--gold);
+            box-shadow: 0 0 15px rgba(245,158,11,0.25);
         }
 
-        /* Containers List */
         .containers-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -143,50 +145,49 @@
             margin-bottom: 20px;
         }
         .container-card {
-            background: linear-gradient(135deg, #121218 0%, #1a1a24 100%);
+            background: linear-gradient(135deg, #0e0e14 0%, #181824 100%);
             border: 1px solid var(--border-color);
             border-radius: 20px;
             padding: 16px;
             cursor: pointer;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: transform 0.1s, border-color 0.2s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        .container-card:active { transform: scale(0.98); }
+        .container-card:active { transform: scale(0.97); }
         .container-card.featured {
-            background: linear-gradient(135deg, #1d1710 0%, #3d260f 100%);
-            border-color: var(--gold-border);
+            background: linear-gradient(135deg, #1f160b 0%, #3d2208 100%);
+            border-color: var(--gold);
+            box-shadow: 0 10px 35px rgba(245,158,11,0.25);
         }
-        .container-info h3 { font-size: 16px; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+        .container-info h3 { font-size: 16px; font-weight: 900; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
         .container-info p { font-size: 11px; color: var(--text-secondary); margin-bottom: 10px; max-width: 210px; }
         .container-price-tag {
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             padding: 6px 12px;
             border-radius: 10px;
             font-size: 12px;
-            font-weight: 800;
+            font-weight: 900;
             color: var(--gold);
-            border: 1px solid rgba(245,158,11,0.25);
+            border: 1px solid rgba(245,158,11,0.3);
             display: inline-block;
         }
         .container-img {
-            width: 90px;
-            height: 65px;
+            width: 95px;
+            height: 70px;
             object-fit: cover;
             border-radius: 12px;
             border: 1px solid var(--border-color);
         }
 
-        /* Gacha / Casino Overlay */
         .gacha-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(4, 4, 6, 0.95);
-            backdrop-filter: blur(20px);
+            background: rgba(3, 3, 5, 0.96);
+            backdrop-filter: blur(25px);
             display: none;
             flex-direction: column;
             justify-content: center;
@@ -196,21 +197,21 @@
         }
         .gacha-box-container {
             width: 100%;
-            max-width: 380px;
-            background: var(--bg-card);
+            max-width: 390px;
+            background: #0d0d12;
             border: 2px solid var(--gold);
-            border-radius: 28px;
+            border-radius: 30px;
             padding: 24px 16px;
             text-align: center;
-            box-shadow: 0 25px 70px rgba(245, 158, 11, 0.3);
+            box-shadow: 0 0 60px rgba(245, 158, 11, 0.4);
             position: relative;
         }
         .roulette-window {
             width: 100%;
-            height: 170px;
-            background: #0b0b0f;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
+            height: 180px;
+            background: #050508;
+            border-radius: 18px;
+            border: 1px solid rgba(245,158,11,0.4);
             overflow: hidden;
             position: relative;
             margin: 16px 0;
@@ -221,24 +222,24 @@
         .roulette-pointer {
             position: absolute;
             top: 0; bottom: 0; left: 50%;
-            width: 3px;
-            background: var(--gold);
+            width: 4px;
+            background: #fff;
             transform: translateX(-50%);
             z-index: 10;
-            box-shadow: 0 0 10px var(--gold);
+            box-shadow: 0 0 15px var(--gold);
         }
         .roulette-track {
             display: flex;
             gap: 12px;
             position: absolute;
             left: 50%;
-            transition: transform 3s cubic-bezier(0.15, 0.85, 0.35, 1);
+            transition: transform 3.5s cubic-bezier(0.06, 0.84, 0.12, 1);
         }
         .roulette-item {
-            min-width: 120px;
-            height: 140px;
-            background: #16161f;
-            border-radius: 12px;
+            min-width: 125px;
+            height: 150px;
+            background: #14141d;
+            border-radius: 14px;
             border: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
@@ -247,14 +248,14 @@
             padding: 10px;
         }
         .roulette-item img {
-            width: 90px;
-            height: 60px;
+            width: 95px;
+            height: 65px;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 10px;
         }
         .roulette-item span {
             font-size: 10px;
-            font-weight: 700;
+            font-weight: 800;
             text-align: center;
             color: #fff;
             overflow: hidden;
@@ -268,49 +269,47 @@
             display: none;
             flex-direction: column;
             align-items: center;
-            animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.25);
+            animation: winPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.3);
         }
-        @keyframes popUp {
-            0% { transform: scale(0.6); opacity: 0; }
+        @keyframes winPop {
+            0% { transform: scale(0.5); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
-        .win-rarity { font-size: 12px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+        .win-rarity { font-size: 13px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
         .win-car-img {
-            width: 220px;
-            height: 135px;
+            width: 230px;
+            height: 140px;
             object-fit: cover;
-            border-radius: 16px;
+            border-radius: 18px;
             border: 2px solid var(--gold);
             margin: 10px 0;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            box-shadow: 0 15px 35px rgba(245,158,11,0.4);
         }
-        .win-car-name { font-size: 20px; font-weight: 800; margin-bottom: 4px; color: #fff; text-align: center; }
-        .win-price { font-size: 18px; font-weight: 900; color: var(--accent-green); margin-bottom: 16px; }
+        .win-car-name { font-size: 21px; font-weight: 900; margin-bottom: 4px; color: #fff; text-align: center; }
+        .win-price { font-size: 19px; font-weight: 900; color: #10b981; margin-bottom: 16px; }
 
-        /* Buttons */
         .btn {
             background: var(--gold-gradient);
             color: #fff;
             border: none;
             width: 100%;
-            padding: 14px;
-            border-radius: 14px;
+            padding: 15px;
+            border-radius: 16px;
             font-size: 15px;
-            font-weight: 800;
+            font-weight: 900;
             cursor: pointer;
-            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35);
-            transition: transform 0.1s;
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+            text-transform: uppercase;
         }
         .btn:active { transform: scale(0.97); }
         .btn-secondary {
             background: var(--bg-card-hover);
             color: #d1d5db;
-            box-shadow: none;
             border: 1px solid var(--border-color);
             margin-top: 10px;
+            box-shadow: none;
         }
 
-        /* Garage & Lists */
         .garage-stats {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -323,7 +322,7 @@
             font-size: 12px;
             color: var(--text-secondary);
         }
-        .garage-stats span { color: #fff; font-weight: 800; }
+        .garage-stats span { color: #fff; font-weight: 900; }
         
         .list-container {
             width: 100%;
@@ -339,17 +338,17 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
         .item-thumb {
-            width: 65px;
-            height: 45px;
+            width: 70px;
+            height: 48px;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 10px;
             margin-right: 12px;
+            border: 1px solid var(--border-color);
         }
         .item-info { display: flex; align-items: center; flex: 1; }
-        .item-details h4 { font-size: 14px; margin-bottom: 2px; font-weight: 700; color: #fff; }
+        .item-details h4 { font-size: 14px; margin-bottom: 2px; font-weight: 800; color: #fff; }
         .item-details p { font-size: 11px; color: var(--text-secondary); }
         .action-sm-btn {
             background: rgba(239, 68, 68, 0.15);
@@ -358,21 +357,20 @@
             padding: 6px 12px;
             border-radius: 10px;
             font-size: 11px;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
         }
 
-        /* Bottom Nav Bar */
         .nav-bar {
             position: fixed;
             bottom: 0; left: 0;
             width: 100%;
-            background: rgba(11, 11, 15, 0.95);
-            backdrop-filter: blur(15px);
-            border-top: 1px solid var(--border-color);
+            background: rgba(8, 8, 12, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--gold-border);
             display: flex;
             justify-content: space-around;
-            padding: 10px 0 20px 0;
+            padding: 10px 0 22px 0;
             z-index: 100;
         }
         .nav-item {
@@ -385,126 +383,95 @@
             font-size: 11px;
             cursor: pointer;
             gap: 4px;
-            font-weight: 600;
-            transition: color 0.2s;
+            font-weight: 700;
         }
-        .nav-item.active { color: var(--gold); }
+        .nav-item.active { color: var(--gold); text-shadow: 0 0 10px rgba(245,158,11,0.5); }
         .nav-item svg { width: 22px; height: 22px; fill: currentColor; }
 
-        /* Rarities */
         .rarity-common { color: #9ca3af; }
         .rarity-rare { color: #3b82f6; }
         .rarity-epic { color: #a855f7; }
-        .rarity-legendary { color: #f59e0b; text-shadow: 0 0 8px rgba(245,158,11,0.4); }
-        .rarity-mythic { color: #ef4444; text-shadow: 0 0 12px rgba(239,68,68,0.6); }
+        .rarity-legendary { color: #f59e0b; text-shadow: 0 0 12px rgba(245,158,11,0.5); }
+        .rarity-mythic { color: #ef4444; text-shadow: 0 0 16px rgba(239,68,68,0.7); }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
     <div class="header">
-        <div class="user-level" id="userLevelText">Уровень <span id="lvlNum">1</span> · Автомагнат</div>
+        <div class="user-level" id="userLevelText">Уровень <span id="lvlNum">1</span> · Казино Магнат</div>
         <div class="stats-container">
             <div class="stats-badge energy-badge">⚡ <span id="energyText">50/50</span></div>
-            <div class="stats-badge money-badge">₽ <span id="moneyText">350 000</span></div>
+            <div class="stats-badge money-badge">₽ <span id="moneyText">500 000</span></div>
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="content">
-        
-        <!-- Tab 1: Containers / Auction -->
         <div id="tab-home" class="tab-content active">
-            <div class="section-title">🌍 Глобальные контейнеры</div>
+            <div class="section-title">🎰 10 Элитных Казино-Контейнеров</div>
             
             <div class="country-selector">
                 <div class="country-chip active" onclick="filterRegion('all', this)">🌐 Все</div>
                 <div class="country-chip" onclick="filterRegion('usa', this)">🇺🇸 США</div>
-                <div class="country-chip" onclick="filterRegion('europe', this)">🇪🇺 Европа</div>
+                <div class="country-chip" onclick="filterRegion('germany', this)">🇩🇪 Германия</div>
+                <div class="country-chip" onclick="filterRegion('japan', this)">🇯🇵 Япония</div>
                 <div class="country-chip" onclick="filterRegion('china', this)">🇨🇳 Китай</div>
-                <div class="country-chip" onclick="filterRegion('russia', this)">🇷🇺 Россия</div>
-                <div class="country-chip" onclick="filterRegion('ukraine', this)">🇺🇦 Украина</div>
+                <div class="country-chip" onclick="filterRegion('korea', this)">🇰🇷 Корея</div>
+                <div class="country-chip" onclick="filterRegion('italy', this)">🇮🇹 Италия</div>
+                <div class="country-chip" onclick="filterRegion('uae', this)">🇦🇪 ОАЭ</div>
+                <div class="country-chip" onclick="filterRegion('uk', this)">🇬🇧 Британия</div>
+                <div class="country-chip" onclick="filterRegion('france', this)">🇫🇷 Франция</div>
+                <div class="country-chip" onclick="filterRegion('cis', this)">🇷🇺 СНГ</div>
             </div>
 
             <div class="containers-grid" id="containersGrid"></div>
 
-            <div class="section-title" style="margin-top: 10px;">⚡ Бонусы</div>
-            <button class="btn btn-secondary" onclick="claimDaily()">🎁 Бесплатный контейнер (раз в сутки)</button>
+            <div class="section-title" style="margin-top: 10px;">⚡ Бонусы казино</div>
+            <button class="btn btn-secondary" onclick="claimDaily()">🎁 Бесплатный кейс (раз в сутки)</button>
         </div>
 
-        <!-- Tab 2: Garage -->
         <div id="tab-garage" class="tab-content">
-            <div class="section-title">🚗 Мой гараж</div>
+            <div class="section-title">🚗 Мой элитный гараж</div>
             <div class="garage-stats">
-                <div>Автомобилей: <span id="garageCount">0</span>/100</div>
+                <div>Автомобилей: <span id="garageCount">0</span>/500</div>
                 <div>Пассивный доход: <span id="passiveIncome">0</span> ₽/мин</div>
             </div>
             <div class="list-container" id="garageList"></div>
         </div>
 
-        <!-- Tab 3: Rating -->
         <div id="tab-rating" class="tab-content">
-            <div class="section-title">🏆 Топ автоколлекционеров</div>
+            <div class="section-title">🏆 Зал славы казино</div>
             <div class="list-container">
-                <div class="item-row" style="border-color: var(--gold-border); background: linear-gradient(135deg, rgba(245,158,11,0.12) 0%, #121218 100%);">
+                <div class="item-row" style="border-color: var(--gold); background: linear-gradient(135deg, rgba(245,158,11,0.15) 0%, #0e0e14 100%);">
                     <div class="item-info">
                         <div class="item-details">
-                            <h4 style="color: var(--gold);">👑 #1 Вы (Автомагнат)</h4>
-                            <p>Стоимость гаража: <span id="topNetWorth">350 000</span> ₽</p>
+                            <h4 style="color: var(--gold);">👑 #1 Вы (Магнат)</h4>
+                            <p>Капитал гаража: <span id="topNetWorth">500 000</span> ₽</p>
                         </div>
                     </div>
-                    <span style="color: var(--gold); font-weight: 800;">TOP 1</span>
-                </div>
-                <div class="item-row">
-                    <div class="item-info">
-                        <div class="item-details">
-                            <h4>2. shashkimaneee</h4>
-                            <p>Стоимость гаража: 148 500 000 ₽</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="item-row">
-                    <div class="item-info">
-                        <div class="item-details">
-                            <h4>3. udartsev00</h4>
-                            <p>Стоимость гаража: 92 000 000 ₽</p>
-                        </div>
-                    </div>
+                    <span style="color: var(--gold); font-weight: 900;">TOP 1</span>
                 </div>
             </div>
         </div>
 
-        <!-- Tab 4: Tasks -->
         <div id="tab-tasks" class="tab-content">
-            <div class="section-title">📜 Контракты и миссии</div>
+            <div class="section-title">📜 Контракты казино</div>
             <div class="list-container">
                 <div class="item-row">
                     <div class="item-info">
                         <div class="item-details">
-                            <h4>Открыть 3 контейнера</h4>
-                            <p>Награда: +25 энергии ⚡</p>
+                            <h4>Открыть 5 контейнеров</h4>
+                            <p>Награда: +50 энергии ⚡</p>
                         </div>
                     </div>
                     <button class="action-sm-btn" style="background:var(--gold); color:#000;" onclick="alert('Задание выполнено!')">Забрать</button>
                 </div>
-                <div class="item-row">
-                    <div class="item-info">
-                        <div class="item-details">
-                            <h4>Собрать 5 машин в гараж</h4>
-                            <p>Награда: +500 000 ₽ 💰</p>
-                        </div>
-                    </div>
-                    <button class="action-sm-btn" style="background:var(--gold); color:#000;" onclick="alert('В процессе прогресса!')">Забрать</button>
-                </div>
             </div>
         </div>
-
     </div>
 
-    <!-- Gacha Overlay / Roulette -->
     <div class="gacha-overlay" id="gachaOverlay">
         <div class="gacha-box-container">
-            <h3 style="font-size: 16px; margin-bottom: 6px; color: var(--gold);" id="gachaStatusTitle">🎰 Аукцион запущен...</h3>
+            <h3 style="font-size: 16px; margin-bottom: 6px; color: var(--gold);" id="gachaStatusTitle">🎰 РУЛЕТКА КАЗИНО ЗАПУЩЕНА...</h3>
             
             <div class="roulette-window" id="rouletteWindow">
                 <div class="roulette-pointer"></div>
@@ -521,7 +488,6 @@
         </div>
     </div>
 
-    <!-- Bottom Navigation -->
     <div class="nav-bar">
         <button class="nav-item active" onclick="switchTab('home', this)">
             <svg viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11z"/><path d="M12 6L5 18h14z"/></svg>
@@ -542,40 +508,47 @@
     </div>
 
     <script>
-        // Persistent Game State Storage
         let energy = parseInt(localStorage.getItem('gaa_energy')) || 50;
         let maxEnergy = 50;
-        let money = parseInt(localStorage.getItem('gaa_money')) || 350000;
+        let money = parseInt(localStorage.getItem('gaa_money')) || 500000;
         let garage = JSON.parse(localStorage.getItem('gaa_garage')) || [];
         let lastDaily = parseInt(localStorage.getItem('gaa_daily')) || 0;
         let wonCar = null;
 
-        // Expanded Car Database with Real High-Res Photos
         const containersData = [
             {
-                id: 'usa', name: 'Контейнер США', flag: '🇺🇸', desc: 'Muscle cars, пикапы и американская классика', costEn: 8, costRub: 50000, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=300', featured: false,
+                id: 'usa', name: 'Контейнер США', flag: '🇺🇸', desc: 'Muscle cars и американские монстры', costEn: 8, costRub: 60000, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=300', featured: false,
                 cars: [
                     { name: "Ford Focus SE", img: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 350000, income: 300 },
-                    { name: "Chevrolet Cruze US", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 480000, income: 400 },
+                    { name: "Chevrolet Cruze", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 480000, income: 400 },
                     { name: "Jeep Grand Cherokee", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 1850000, income: 1500 },
                     { name: "Chevrolet Camaro LT", img: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 3200000, income: 2800 },
-                    { name: "Dodge Charger SRT Hellcat", img: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=300", rarity: "Эпический", rarityClass: "rarity-epic", price: 14500000, income: 12000 },
-                    { name: "Ford Mustang Shelby GT500", img: "https://images.unsplash.com/p1584345622-53bd4826b147?w=300", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 38000000, income: 35000 },
-                    { name: "Tesla Cybertruck Cyberbeast", img: "https://images.unsplash.com/photo-1563720223185-11003d516935?w=300", rarity: "Мифический", rarityClass: "rarity-mythic", price: 85000000, income: 80000 }
+                    { name: "Dodge Charger SRT", img: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=300", rarity: "Эпический", rarityClass: "rarity-epic", price: 14500000, income: 12000 },
+                    { name: "Ford Mustang Shelby", img: "https://images.unsplash.com/photo-1584345622-53bd4826b147?w=300", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 38000000, income: 35000 },
+                    { name: "Tesla Cybertruck", img: "https://images.unsplash.com/photo-1563720223185-11003d516935?w=300", rarity: "Мифический", rarityClass: "rarity-mythic", price: 85000000, income: 80000 }
                 ]
             },
             {
-                id: 'europe', name: 'Контейнер Европы', flag: '🇪🇺', desc: 'Премиум бизнес-класс и немецкие монстры', costEn: 12, costRub: 90000, img: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=300', featured: true,
+                id: 'germany', name: 'Контейнер Германии', flag: '🇩🇪', desc: 'Немецкий премиум и спорткары', costEn: 12, costRub: 100000, img: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=300', featured: true,
                 cars: [
                     { name: "Volkswagen Golf VII", img: "https://images.unsplash.com/photo-1541899481282-d53bffe3c351?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 850000, income: 700 },
                     { name: "BMW E39 530i", img: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 1400000, income: 1200 },
                     { name: "Audi RS6 Avant", img: "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?w=300", rarity: "Эпический", rarityClass: "rarity-epic", price: 18000000, income: 15000 },
-                    { name: "BMW M5 F90 Competition", img: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=300", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 45000000, income: 42000 },
+                    { name: "BMW M5 F90 Comp", img: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=300", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 45000000, income: 42000 },
                     { name: "Porsche 911 GT3 RS", img: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=300", rarity: "Мифический", rarityClass: "rarity-mythic", price: 95000000, income: 95000 }
                 ]
             },
             {
-                id: 'china', name: 'Контейнер Китая', flag: '🇨🇳', desc: 'Современные электрокары и премиум SUV', costEn: 6, costRub: 40000, img: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=300', featured: false,
+                id: 'japan', name: 'Контейнер Японии', flag: '🇯🇵', desc: 'JDM легенды и турбо-моторы', costEn: 10, costRub: 80000, img: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=300', featured: false,
+                cars: [
+                    { name: "Toyota Corolla JDM", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 650000, income: 550 },
+                    { name: "Subaru Impreza WRX", img: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 2100000, income: 1800 },
+                    { name: "Nissan Skyline GT-R R34", img: "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=300", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 42000000, income: 40000 },
+                    { name: "Toyota Supra A80", img: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=300", rarity: "Мифический", rarityClass: "rarity-mythic", price: 88000000, income: 85000 }
+                ]
+            },
+            {
+                id: 'china', name: 'Контейнер Китая', flag: '🇨🇳', desc: 'Электрокары и инновации', costEn: 6, costRub: 45000, img: 'https://images.unsplash.com/photo-1563720223185-11003d516935?w=300', featured: false,
                 cars: [
                     { name: "Chery Tiggo 7 Pro", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 1250000, income: 1000 },
                     { name: "Geely Monjaro", img: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 3400000, income: 3000 },
@@ -584,22 +557,51 @@
                 ]
             },
             {
-                id: 'russia', name: 'Контейнер России', flag: '🇷🇺', desc: 'Легенды отечественного автопрома и тюнинг', costEn: 5, costRub: 30000, img: 'https://images.unsplash.com/photo-1526726538690-5cbf956ae2fd?w=300', featured: false,
+                id: 'korea', name: 'Контейнер Кореи', flag: '🇰🇷', desc: 'Корейский комфорт и стиль', costEn: 7, costRub: 50000, img: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c351?w=300', featured: false,
                 cars: [
-                    { name: "ВАЗ-2107 «Жигули»", img: "https://images.unsplash.com/photo-1526726538690-5cbf956ae2fd?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 220000, income: 200 },
-                    { name: "Lada Granta Club", img: "https://images.unsplash.com/photo-1541899481282-d53bffe3c351?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 650000, income: 550 },
-                    { name: "Lada Niva Legend", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 1200000, income: 1100 },
-                    { name: "UAZ Patriot Expedition", img: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=300", rarity: "Эпический", rarityClass: "rarity-epic", price: 2600000, income: 2400 },
-                    { name: "Aurus Senat Limousine", img: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=300", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 55000000, income: 50000 }
+                    { name: "Hyundai Solaris", img: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 750000, income: 600 },
+                    { name: "Kia K5 GT-Line", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 2600000, income: 2200 },
+                    { name: "Genesis G90", img: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=300", rarity: "Эпический", rarityClass: "rarity-epic", price: 11000000, income: 9500 }
                 ]
             },
             {
-                id: 'ukraine', name: 'Контейнер Украины', flag: '🇺🇦', desc: 'Раритетные эксклюзивы и кастом проекты', costEn: 10, costRub: 70000, img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=300', featured: false,
+                id: 'italy', name: 'Контейнер Италии', flag: '🇮🇹', desc: 'Суперкары и страсть', costEn: 15, costRub: 150000, img: 'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=300', featured: true,
                 cars: [
-                    { name: "ЗАЗ-968М «Запорожец»", img: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 250000, income: 250 },
-                    { name: "ЗАЗ Таврия Нова", img: "https://images.unsplash.com/photo-1541899481282-d53bffe3c351?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 380000, income: 350 },
-                    { name: "ЗАЗ Lanos Sport", img: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 950000, income: 900 },
-                    { name: "Restomod ГАЗ-21", img: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=300", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 24000000, income: 22000 }
+                    { name: "Alfa Romeo Giulia", img: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 3500000, income: 3100 },
+                    { name: "Ferrari F8 Tributo", img: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=300", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 65000000, income: 60000 },
+                    { name: "Lamborghini Aventador", img: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=300", rarity: "Мифический", rarityClass: "rarity-mythic", price: 110000000, income: 110000 }
+                ]
+            },
+            {
+                id: 'uae', name: 'Контейнер ОАЭ', flag: '🇦🇪', desc: 'Гиперкары шейхов Дубая', costEn: 20, costRub: 250000, img: 'https://images.unsplash.com/photo-1563720223185-11003d516935?w=300', featured: true,
+                cars: [
+                    { name: "Nissan Patrol VIP", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 5500000, income: 5000 },
+                    { name: "Bugatti Chiron", img: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=300", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 120000000, income: 120000 },
+                    { name: "Devel Sixteen", img: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=300", rarity: "Мифический", rarityClass: "rarity-mythic", price: 200000000, income: 200000 }
+                ]
+            },
+            {
+                id: 'uk', name: 'Контейнер Британии', flag: '🇬🇧', desc: 'Британская роскошь', costEn: 14, costRub: 120000, img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=300', featured: false,
+                cars: [
+                    { name: "Mini Cooper S", img: "https://images.unsplash.com/photo-1541899481282-d53bffe3c351?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 1200000, income: 1000 },
+                    { name: "Range Rover", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300", rarity: "Эпический", rarityClass: "rarity-epic", price: 22000000, income: 19000 },
+                    { name: "Rolls-Royce Phantom", img: "https://images.unsplash.com/photo-1563720223185-11003d516935?w=300", rarity: "Мифический", rarityClass: "rarity-mythic", price: 90000000, income: 90000 }
+                ]
+            },
+            {
+                id: 'france', name: 'Контейнер Франции', flag: '🇫🇷', desc: 'Французский шарм', costEn: 9, costRub: 70000, img: 'https://images.unsplash.com/photo-1526726538690-5cbf956ae2fd?w=300', featured: false,
+                cars: [
+                    { name: "Renault Logan", img: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 400000, income: 350 },
+                    { name: "Peugeot 508 GT", img: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 2400000, income: 2000 },
+                    { name: "Alpine A110 R", img: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=300", rarity: "Эпический", rarityClass: "rarity-epic", price: 13500000, income: 11500 }
+                ]
+            },
+            {
+                id: 'cis', name: 'Контейнер СНГ', flag: '🇷🇺', desc: 'Родные легенды и тюнинг', costEn: 5, costRub: 30000, img: 'https://images.unsplash.com/photo-1526726538690-5cbf956ae2fd?w=300', featured: false,
+                cars: [
+                    { name: "ВАЗ-2107", img: "https://images.unsplash.com/photo-1526726538690-5cbf956ae2fd?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 220000, income: 200 },
+                    { name: "Lada Niva", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 1200000, income: 1100 },
+                    { name: "Aurus Senat", img: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=300", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 55000000, income: 50000 }
                 ]
             }
         ];
@@ -636,13 +638,12 @@
             renderContainers(region);
         }
 
-        // Hardcore Casino Gacha Mechanism with Low Legendary Rates
         function openContainer(containerId) {
             const container = containersData.find(c => c.id === containerId);
             if (!container) return;
 
             if (energy < container.costEn && money < container.costRub) {
-                alert("Недостаточно энергии и средств для ставки на аукционе!");
+                alert("Недостаточно энергии и средств!");
                 return;
             }
 
@@ -652,8 +653,8 @@
                 money -= container.costRub;
             }
 
-            if (garage.length >= 100) {
-                alert("Гараж полностью заполнен (максимум 100 машин)! Продайте лишние автомобили.");
+            if (garage.length >= 500) {
+                alert("Гараж заполнено (максимум 500 машин)!");
                 saveState();
                 updateUI();
                 return;
@@ -662,19 +663,17 @@
             saveState();
             updateUI();
 
-            // Strict & Fair Rarity Weights (Hardcore Casino Style)
             const pool = container.cars;
             const rand = Math.random() * 100;
             let car;
-            if (rand < 62) car = pool[0];                                // Common (~62%)
-            else if (rand < 86) car = pool[1] || pool[0];                // Rare (~24%)
-            else if (rand < 95) car = pool[2] || pool[1];                // Epic (~9%)
-            else if (rand < 98.8) car = pool[3] || pool[2];              // Legendary (~3.8%)
-            else car = pool[pool.length - 1];                            // Mythic (~1.2%)
+            if (rand < 62) car = pool[0];
+            else if (rand < 86) car = pool[1] || pool[0];
+            else if (rand < 95) car = pool[2] || pool[1];
+            else if (rand < 98.8) car = pool[3] || pool[2];
+            else car = pool[pool.length - 1];
 
             wonCar = { ...car, id: Date.now() };
 
-            // Show Gacha Overlay
             const overlay = document.getElementById('gachaOverlay');
             const track = document.getElementById('rouletteTrack');
             const winDetails = document.getElementById('winDetails');
@@ -683,12 +682,11 @@
 
             winDetails.style.display = 'none';
             windowEl.style.display = 'flex';
-            statusTitle.innerText = '🎰 Торги на аукционе идут...';
+            statusTitle.innerText = '🎰 КАЗИНО КРУТИТ БАРАБАНЫ...';
             overlay.style.display = 'flex';
 
-            // Build roulette items chain
             let itemsHTML = '';
-            let winningIndex = 22; // Winner position
+            let winningIndex = 22;
             for (let i = 0; i < 30; i++) {
                 let randomCar = (i === winningIndex) ? wonCar : pool[Math.floor(Math.random() * pool.length)];
                 itemsHTML += `
@@ -702,17 +700,15 @@
             track.style.transition = 'none';
             track.style.transform = 'translateX(0px)';
 
-            // Trigger smooth roulette spin animation
             setTimeout(() => {
-                track.style.transition = 'transform 3.2s cubic-bezier(0.08, 0.82, 0.15, 1)';
-                let offset = -(winningIndex * 132) + 125; // Center alignment
+                track.style.transition = 'transform 3.5s cubic-bezier(0.06, 0.84, 0.12, 1)';
+                let offset = -(winningIndex * 137) + 130;
                 track.style.transform = `translateX(${offset}px)`;
             }, 50);
 
-            // Reveal winner result after spin
             setTimeout(() => {
                 windowEl.style.display = 'none';
-                statusTitle.innerText = '🔥 Лот успешно выигран!';
+                statusTitle.innerText = '🔥 ДЖЕКПОТ! ЛОТ ВЫИГРАН!';
                 
                 document.getElementById('modalRarity').innerText = wonCar.rarity;
                 document.getElementById('modalRarity').className = 'win-rarity ' + wonCar.rarityClass;
@@ -721,7 +717,7 @@
                 document.getElementById('modalPrice').innerText = `Рыночная цена: +${wonCar.price.toLocaleString()} ₽`;
                 
                 winDetails.style.display = 'flex';
-            }, 3350);
+            }, 3650);
         }
 
         function closeGachaModal() {
@@ -743,7 +739,7 @@
             document.getElementById('passiveIncome').innerText = totalIncome;
 
             if (garage.length === 0) {
-                list.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 40px; font-size: 13px;">Гараж пуст. Откройте свой первый контейнер на вкладке «Аукцион»!</p>`;
+                list.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 40px; font-size: 13px;">Гараж пуст!</p>`;
                 return;
             }
 
@@ -764,7 +760,7 @@
         function sellCar(id) {
             const car = garage.find(i => i.id === id);
             if (car) {
-                money += Math.floor(car.price * 0.75); // 75% market payout
+                money += Math.floor(car.price * 0.75);
                 garage = garage.filter(i => i.id !== id);
                 saveState();
                 renderGarage();
@@ -775,15 +771,15 @@
         function claimDaily() {
             const now = Date.now();
             if (now - lastDaily < 86400000) {
-                alert("Бесплатный контейнер доступен 1 раз в 24 часа!");
+                alert("Доступно 1 раз в 24 часа!");
                 return;
             }
             lastDaily = now;
-            energy = Math.min(maxEnergy, energy + 25);
-            money += 200000;
+            energy = Math.min(maxEnergy, energy + 30);
+            money += 300000;
             saveState();
             updateUI();
-            alert("🎁 Ежедневный бонус получен! +25 энергии и +200 000 ₽!");
+            alert("🎁 Бонус получен!");
         }
 
         function updateUI() {
@@ -795,7 +791,6 @@
             document.getElementById('lvlNum').innerText = lvl;
         }
 
-        // Passive Income and Energy Regen Loops
         setInterval(() => {
             if (garage.length > 0) {
                 let totalIncomeSec = garage.reduce((sum, car) => sum + car.income, 0) / 12;
@@ -811,7 +806,7 @@
                 saveState();
                 updateUI();
             }
-        }, 90000);
+        }, 80000);
 
         function switchTab(tabName, btnElement) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -821,7 +816,6 @@
             btnElement.classList.add('active');
         }
 
-        // Init App Startup
         renderContainers();
         renderGarage();
         updateUI();
