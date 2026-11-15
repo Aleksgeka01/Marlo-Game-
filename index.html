@@ -3,316 +3,609 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Super Mario Telegram Mini App</title>
+    <title>Global Auto Auction</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
+        * {
+            box-sizing: border-box;
             margin: 0;
-            background: #1a1a2e;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+        }
+        body {
+            background-color: #0f0f13;
+            color: #ffffff;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
             height: 100vh;
             overflow: hidden;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            touch-action: manipulation;
-            color: #fff;
         }
-        #gameContainer {
-            text-align: center;
-            position: relative;
-        }
-        canvas {
-            background: linear-gradient(to bottom, #5c94fc, #b5e2fa);
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            max-width: 100%;
-            height: auto;
-        }
-        .info-panel {
-            margin-bottom: 10px;
-            font-size: 18px;
-            font-weight: bold;
+        /* Top Header */
+        .header {
             display: flex;
             justify-content: space-between;
-            width: 360px;
-            padding: 0 10px;
-            box-sizing: border-box;
+            align-items: center;
+            padding: 12px 16px;
+            background: #17171c;
+            border-bottom: 1px solid #26262e;
         }
+        .user-level {
+            font-size: 13px;
+            font-weight: 600;
+            color: #9ca3af;
+        }
+        .stats-container {
+            display: flex;
+            gap: 8px;
+        }
+        .stats-badge {
+            background: #21212a;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border: 1px solid #2e2e3a;
+        }
+        .energy-badge { color: #f59e0b; }
+        .money-badge { color: #10b981; }
+
+        /* Main Content Area */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            padding-bottom: 90px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .tab-content {
+            display: none;
+            width: 100%;
+            max-width: 420px;
+            flex-direction: column;
+            align-items: center;
+        }
+        .tab-content.active {
+            display: flex;
+        }
+
+        /* Section Titles */
+        .section-title {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 14px;
+            align-self: flex-start;
+            color: #f3f4f6;
+        }
+
+        /* Containers Grid */
+        .containers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .container-card {
+            background: linear-gradient(135deg, #181820 0%, #252530 100%);
+            border: 2px solid #333342;
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.1s, border-color 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .container-card:active { transform: scale(0.96); }
+        .container-card.featured {
+            grid-column: span 2;
+            background: linear-gradient(135deg, #1f1b18 0%, #3d2c1d 100%);
+            border-color: #f59e0b;
+        }
+        .container-flag { font-size: 32px; margin-bottom: 8px; }
+        .container-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+        .container-desc { font-size: 11px; color: #9ca3af; margin-bottom: 12px; }
+        .container-price {
+            background: rgba(0,0,0,0.3);
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 800;
+            color: #f59e0b;
+            display: inline-block;
+        }
+
+        /* Result Modal / Drop Window */
+        .drop-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .drop-card {
+            background: #181820;
+            border: 2px solid #f59e0b;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 360px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+            animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popUp {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .drop-rarity {
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .drop-car-name {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+        .drop-car-img {
+            font-size: 64px;
+            margin: 15px 0;
+        }
+        .drop-price {
+            font-size: 20px;
+            font-weight: 800;
+            color: #10b981;
+            margin-bottom: 20px;
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #fff;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+            transition: transform 0.1s;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-secondary {
+            background: #252530;
+            color: #d1d5db;
+            box-shadow: none;
+            margin-top: 8px;
+        }
+
+        /* Garage list */
+        .garage-stats {
+            background: #17171c;
+            border: 1px solid #26262e;
+            border-radius: 14px;
+            padding: 14px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: #9ca3af;
+        }
+        .garage-stats span { color: #fff; font-weight: 700; }
+        
+        .list-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .item-row {
+            background: #17171c;
+            border: 1px solid #26262e;
+            padding: 12px 16px;
+            border-radius: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .item-info h4 { font-size: 15px; margin-bottom: 3px; font-weight: 700; }
+        .item-info p { font-size: 11px; color: #9ca3af; }
+        .action-sm-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Bottom Nav Bar */
+        .nav-bar {
+            position: fixed;
+            bottom: 0; left: 0;
+            width: 100%;
+            background: #141418;
+            border-top: 1px solid #26262e;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 100;
+        }
+        .nav-item {
+            background: none;
+            border: none;
+            color: #6b7280;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 11px;
+            cursor: pointer;
+            gap: 4px;
+            font-weight: 600;
+        }
+        .nav-item.active { color: #f59e0b; }
+        .nav-item svg { width: 22px; height: 22px; fill: currentColor; }
+
+        /* Rarity Colors */
+        .rarity-common { color: #9ca3af; }
+        .rarity-rare { color: #3b82f6; }
+        .rarity-epic { color: #a855f7; }
+        .rarity-legendary { color: #f59e0b; text-shadow: 0 0 10px rgba(245,158,11,0.4); }
+        .rarity-mythic { color: #ef4444; text-shadow: 0 0 12px rgba(239,68,68,0.5); }
     </style>
 </head>
 <body>
 
-<div id="gameContainer">
-    <div class="info-panel">
-        <span id="levelText">Уровень: 1</span>
-        <span id="scoreText">Очки: 0/10</span>
+    <!-- Header -->
+    <div class="header">
+        <div class="user-level" id="userLevelText">Уровень 1 · Коллекционер</div>
+        <div class="stats-container">
+            <div class="stats-badge energy-badge">⚡ <span id="energyText">30/30</span></div>
+            <div class="stats-badge money-badge">₽ <span id="moneyText">25 000</span></div>
+        </div>
     </div>
-    <canvas id="gameCanvas" width="360" height="500"></canvas>
-</div>
 
-<script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
+    <!-- Main Content -->
+    <div class="content">
+        
+        <!-- Tab 1: Containers / Auction -->
+        <div id="tab-home" class="tab-content active">
+            <div class="section-title">🌍 Выберите контейнер</div>
+            
+            <div class="containers-grid">
+                <!-- USA -->
+                <div class="container-card" onclick="openContainer('usa')">
+                    <div class="container-flag">🇺🇸</div>
+                    <div class="container-name">США</div>
+                    <div class="container-desc">Muscle cars & Pickups</div>
+                    <div class="container-price">⚡ 10 (15k ₽)</div>
+                </div>
+                <!-- Europe -->
+                <div class="container-card" onclick="openContainer('europe')">
+                    <div class="container-flag">🇪🇺</div>
+                    <div class="container-name">Европа</div>
+                    <div class="container-desc">Премиум & Суперкары</div>
+                    <div class="container-price">⚡ 25 (40k ₽)</div>
+                </div>
+                <!-- China -->
+                <div class="container-card" onclick="openContainer('china')">
+                    <div class="container-flag">🇨🇳</div>
+                    <div class="container-name">Китай</div>
+                    <div class="container-desc">Электрокары & SUV</div>
+                    <div class="container-price">⚡ 8 (10k ₽)</div>
+                </div>
+                <!-- Russia -->
+                <div class="container-card" onclick="openContainer('russia')">
+                    <div class="container-flag">🇷🇺</div>
+                    <div class="container-name">Россия</div>
+                    <div class="container-desc">Легенды автопрома</div>
+                    <div class="container-price">⚡ 5 (5k ₽)</div>
+                </div>
+                <!-- Ukraine (Featured) -->
+                <div class="container-card featured" onclick="openContainer('ukraine')">
+                    <div class="container-flag">🇺🇦</div>
+                    <div class="container-name">Украина (Секретный лот)</div>
+                    <div class="container-desc">Раритеты и эксклюзивные проекты</div>
+                    <div class="container-price">⚡ 15 (20k ₽)</div>
+                </div>
+            </div>
 
-    const levelText = document.getElementById('levelText');
-    const scoreText = document.getElementById('scoreText');
+            <div class="section-title" style="margin-top: 10px;">⚡ Бонусы</div>
+            <button class="btn btn-secondary" onclick="claimDaily()">🎁 Бесплатный контейнер (раз в сутки)</button>
+        </div>
 
-    // Настройки игры и уровней
-    let currentLevel = 1;
-    let score = 0;
-    let gameOver = false;
-    let levelCompleted = false;
+        <!-- Tab 2: Garage -->
+        <div id="tab-garage" class="tab-content">
+            <div class="section-title">🚗 Мой гараж</div>
+            <div class="garage-stats">
+                <div>Слоты: <span id="garageCount">0</span>/20</div>
+                <div>Пассивный доход: <span id="passiveIncome">0</span> ₽/мин</div>
+            </div>
+            <div class="list-container" id="garageList">
+                <p style="color: #6b7280; text-align: center; padding: 40px; font-size: 13px;">Ваш гараж пуст. Откройте первый контейнер на главной!</p>
+            </div>
+        </div>
 
-    // Игрок (Марио)
-    let player = {
-        x: 60,
-        y: 380,
-        width: 34,
-        height: 38,
-        vy: 0,
-        gravity: 0.7,
-        jump: -11,
-        grounded: false
-    };
+        <!-- Tab 3: Rating -->
+        <div id="tab-rating" class="tab-content">
+            <div class="section-title">🏆 Топ коллекционеров</div>
+            <div class="list-container">
+                <div class="item-row">
+                    <div class="item-info">
+                        <h4>1. @aleksgeka01 (Вы)</h4>
+                        <p>Стоимость гаража: <span id="topNetWorth">25 000</span> ₽</p>
+                    </div>
+                    <span style="color: #f59e0b; font-weight: 800;">👑 #1</span>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <h4>2. shashkimaneee</h4>
+                        <p>Стоимость гаража: 14 850 000 ₽</p>
+                    </div>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <h4>3. udartsev00</h4>
+                        <p>Стоимость гаража: 9 200 000 ₽</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    // Препятствия (Трубы) и бонусы (Монетки)
-    let obstacles = [];
-    let coins = [];
-    let clouds = [
-        { x: 50, y: 80, speed: 0.5, size: 40 },
-        { x: 200, y: 50, speed: 0.3, size: 60 },
-        { x: 320, y: 120, speed: 0.4, size: 50 }
-    ];
+        <!-- Tab 4: Tasks -->
+        <div id="tab-tasks" class="tab-content">
+            <div class="section-title">📜 Контракты и задания</div>
+            <div class="list-container">
+                <div class="item-row">
+                    <div class="item-info">
+                        <h4>Открыть 3 контейнера</h4>
+                        <p>Награда: +15 энергии ⚡</p>
+                    </div>
+                    <button class="action-sm-btn" onclick="alert('Задание в процессе!')">Забрать</button>
+                </div>
+                <div class="item-row">
+                    <div class="item-info">
+                        <h4>Собрать 5 машин в гараж</h4>
+                        <p>Награда: +50 000 ₽ 💰</p>
+                    </div>
+                    <button class="action-sm-btn" onclick="alert('Задание в процессе!')">Забрать</button>
+                </div>
+            </div>
+        </div>
 
-    function initLevel() {
-        obstacles = [{ x: 400, y: 410, width: 30, height: 70 }];
-        coins = [{ x: 405, y: 330, collected: false }];
-    }
+    </div>
 
-    initLevel();
+    <!-- Drop Modal Window -->
+    <div class="drop-overlay" id="dropModal">
+        <div class="drop-card">
+            <div class="drop-rarity" id="modalRarity">Легендарный</div>
+            <div class="drop-car-img" id="modalEmoji">🏎️</div>
+            <div class="drop-car-name" id="modalCarName">Dodge Charger SRT</div>
+            <div class="drop-price" id="modalPrice">+4 500 000 ₽</div>
+            <button class="btn" onclick="closeModal()">В гараж 🚗</button>
+        </div>
+    </div>
 
-    // Управление для телефонов и ПК
-    window.addEventListener('keydown', (e) => {
-        if (e.code === 'Space' || e.code === 'ArrowUp') {
-            action();
-        }
-    });
+    <!-- Bottom Navigation -->
+    <div class="nav-bar">
+        <button class="nav-item active" onclick="switchTab('home', this)">
+            <svg viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11z"/><path d="M12 6L5 18h14z"/></svg>
+            Аукцион
+        </button>
+        <button class="nav-item" onclick="switchTab('garage', this)">
+            <svg viewBox="0 0 24 24"><path d="M19 5H5c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 12H5V7h14v10z"/></svg>
+            Гараж
+        </button>
+        <button class="nav-item" onclick="switchTab('rating', this)">
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            Рейтинг
+        </button>
+        <button class="nav-item" onclick="switchTab('tasks', this)">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+            Задания
+        </button>
+    </div>
 
-    canvas.addEventListener('click', () => {
-        action();
-    });
+    <script>
+        // Game State
+        let energy = 30;
+        let maxEnergy = 30;
+        let money = 25000;
+        let garage = [];
+        let lastDaily = 0;
 
-    canvas.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        action();
-    }, { passive: false });
+        // Cars Database by Regions
+        const carDatabase = {
+            usa: [
+                { name: "Ford Focus SE", emoji: "🚙", rarity: "Обычный", rarityClass: "rarity-common", price: 650000, income: 100 },
+                { name: "Chevrolet Camaro LT", emoji: "🏎️", rarity: "Редкий", rarityClass: "rarity-rare", price: 2800000, income: 450 },
+                { name: "Dodge Charger SRT", emoji: "🚗", rarity: "Эпический", rarityClass: "rarity-epic", price: 7500000, income: 1200 },
+                { name: "Ford Mustang Shelby GT500", emoji: "🚘", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 18000000, income: 3000 },
+                { name: "Tesla Cybertruck Cyberbeast", emoji: "⚡", rarity: "Мифический", rarityClass: "rarity-mythic", price: 45000000, income: 8000 }
+            ],
+            europe: [
+                { name: "Volkswagen Golf VII", emoji: "🚗", rarity: "Обычный", rarityClass: "rarity-common", price: 1100000, income: 150 },
+                { name: "Audi RS6 Avant", emoji: "🚙", rarity: "Редкий", rarityClass: "rarity-rare", price: 6500000, income: 1000 },
+                { name: "BMW M5 F90 Competition", emoji: "🏎️", rarity: "Эпический", rarityClass: "rarity-epic", price: 12000000, income: 2000 },
+                { name: "Porsche 911 GT3 RS", emoji: "🏎️", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 32000000, income: 5500 },
+                { name: "Ferrari LaFerrari", emoji: "🔥", rarity: "Мифический", rarityClass: "rarity-mythic", price: 120000000, income: 20000 }
+            ],
+            china: [
+                { name: "Chery Tiggo 7 Pro", emoji: "🚙", rarity: "Обычный", rarityClass: "rarity-common", price: 1700000, income: 200 },
+                { name: "Geely Monjaro", emoji: "🚙", rarity: "Редкий", rarityClass: "rarity-rare", price: 3100000, income: 500 },
+                { name: "Zeekr 001 FR", emoji: "⚡", rarity: "Эпический", rarityClass: "rarity-epic", price: 8500000, income: 1400 },
+                { name: "Yangwang U8", emoji: "🛸", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 16000000, income: 2800 }
+            ],
+            russia: [
+                { name: "Lada Granta Club", emoji: "🚗", rarity: "Обычный", rarityClass: "rarity-common", price: 750000, income: 80 },
+                { name: "Lada Niva Legend", emoji: "🚙", rarity: "Редкий", rarityClass: "rarity-rare", price: 1300000, income: 200 },
+                { name: "UAZ Patriot Expedition", emoji: "🚐", rarity: "Эпический", rarityClass: "rarity-epic", price: 2400000, income: 400 },
+                { name: "Aurus Senat Limousine", emoji: "👑", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 38000000, income: 6500 }
+            ],
+            ukraine: [
+                { name: "ЗАЗ-968М «Запорожец»", emoji: "🚗", rarity: "Обычный", rarityClass: "rarity-common", price: 280000, income: 50 },
+                { name: "ЗАЗ Таврия Нова", emoji: "🚙", rarity: "Редкий", rarityClass: "rarity-rare", price: 450000, income: 90 },
+                { name: "Тюнингованный ЗАЗ Lanos Sport", emoji: "🏎️", rarity: "Эпический", rarityClass: "rarity-epic", price: 1100000, income: 250 },
+                { name: "Эксклюзивный ретро-проект ГАЗ-21 на шасси BMW", emoji: "✨", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 6500000, income: 1100 }
+            ]
+        };
 
-    function action() {
-        if (gameOver || levelCompleted) {
-            if (gameOver) {
-                currentLevel = 1;
-                score = 0;
-            } else if (levelCompleted) {
-                currentLevel++;
-                if (currentLevel > 5) currentLevel = 1; // Зацикливание или финал
-                score = 0;
+        let lastOpenedCar = null;
+
+        function openContainer(regionKey) {
+            const costs = { usa: { en: 10, rub: 15000 }, europe: { en: 25, rub: 40000 }, china: { en: 8, rub: 10000 }, russia: { en: 5, rub: 5000 }, ukraine: { en: 15, rub: 20000 } };
+            const cost = costs[regionKey];
+
+            if (energy < cost.en && money < cost.rub) {
+                alert("Недостаточно энергии и средств для открытия контейнера!");
+                return;
             }
-            gameOver = false;
-            levelCompleted = false;
-            player.y = 380;
-            player.vy = 0;
-            initLevel();
-            loop();
-        } else if (player.grounded) {
-            player.vy = player.jump;
-            player.grounded = false;
-        }
-    }
 
-    function update() {
-        if (gameOver || levelCompleted) return;
-
-        // Гравитация
-        player.vy += player.gravity;
-        player.y += player.vy;
-
-        // Столкновение с полом
-        const floorY = 440 - player.height;
-        if (player.y > floorY) {
-            player.y = floorY;
-            player.vy = 0;
-            player.grounded = true;
-        }
-
-        // Скорость зависит от уровня (усложнение)
-        let gameSpeed = 3.5 + (currentLevel * 0.7);
-
-        // Движение облаков
-        clouds.forEach(cloud => {
-            cloud.x -= cloud.speed;
-            if (cloud.x < -60) cloud.x = canvas.width + 50;
-        });
-
-        // Движение препятствий
-        obstacles.forEach(obs => {
-            obs.x -= gameSpeed;
-
-            // Генерация новых труб
-            if (obs.x + obs.width < 0) {
-                obs.x = canvas.width + Math.random() * 100 + 120;
-                // Меняем высоту труб в зависимости от уровня
-                let minHeight = 40;
-                let maxHeight = 80 + (currentLevel * 10);
-                obs.height = Math.floor(Math.random() * (maxHeight - minHeight)) + minHeight;
-                obs.y = 440 - obs.height;
+            if (energy >= cost.en) {
+                energy -= cost.en;
+            } else {
+                money -= cost.rub;
             }
 
-            // Проверка столкновений с трубами
-            if (
-                player.x < obs.x + obs.width - 5 &&
-                player.x + player.width - 5 > obs.x &&
-                player.y + player.height > obs.y + 5
-            ) {
-                gameOver = true;
-            }
-        });
-
-        // Движение и сбор монеток
-        coins.forEach(coin => {
-            coin.x -= gameSpeed;
-            if (coin.x < -30) {
-                coin.x = canvas.width + Math.random() * 150 + 100;
-                coin.collected = false;
+            if (garage.length >= 20) {
+                alert("Гараж полон (максимум 20 машин)! Продайте лишние автомобили в гараже.");
+                updateUI();
+                return;
             }
 
-            // Проверка сбора монетки
-            if (!coin.collected &&
-                player.x < coin.x + 20 &&
-                player.x + player.width > coin.x &&
-                player.y < coin.y + 20 &&
-                player.y + player.height > coin.y
-            ) {
-                coin.collected = true;
-                score++;
-                if (score >= 10 + (currentLevel * 2)) {
-                    levelCompleted = true;
-                }
-            }
-        });
+            updateUI();
 
-        // Обновление текста интерфейса
-        levelText.innerText = `Уровень: ${currentLevel}`;
-        scoreText.innerText = `Очки: ${score}/${10 + (currentLevel * 2)}`;
-    }
+            // Roll car based on probability weights
+            const pool = carDatabase[regionKey];
+            const rand = Math.random() * 100;
+            let car;
+            if (rand < 55) car = pool[0]; // Common
+            else if (rand < 80) car = pool[1] || pool[0]; // Rare
+            else if (rand < 93) car = pool[2] || pool[1]; // Epic
+            else if (rand < 98.5) car = pool[3] || pool[2]; // Legendary
+            else car = pool[4] || pool[3]; // Mythic
 
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+            lastOpenedCar = { ...car, id: Date.now() };
 
-        // Отрисовка облаков
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-        clouds.forEach(cloud => {
-            ctx.beginPath();
-            ctx.arc(cloud.x, cloud.y, cloud.size / 2, 0, Math.PI * 2);
-            ctx.arc(cloud.x + cloud.size / 3, cloud.y - 10, cloud.size / 2.5, 0, Math.PI * 2);
-            ctx.arc(cloud.x + cloud.size / 1.5, cloud.y, cloud.size / 2.2, 0, Math.PI * 2);
-            ctx.fill();
-        });
-
-        // Отрисовка холмов на фоне
-        ctx.fillStyle = '#38a169';
-        ctx.beginPath();
-        ctx.arc(80, 440, 70, Math.PI, 0, false);
-        ctx.arc(280, 440, 90, Math.PI, 0, false);
-        ctx.fill();
-
-        // Земля (кирпичный узор)
-        ctx.fillStyle = '#c84c0c';
-        ctx.fillRect(0, 440, canvas.width, 60);
-        ctx.fillStyle = '#fcbc3c';
-        ctx.fillRect(0, 440, canvas.width, 8);
-
-        // Отрисовка труб (в стиле Марио)
-        obstacles.forEach(obs => {
-            ctx.fillStyle = '#00a800';
-            ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-            // Шапка трубы
-            ctx.fillStyle = '#00f800';
-            ctx.fillRect(obs.x - 3, obs.y, obs.width + 6, 14);
-            // Блик на трубе
-            ctx.fillStyle = '#80ff80';
-            ctx.fillRect(obs.x + 4, obs.y + 16, 4, obs.height - 16);
-        });
-
-        // Отрисовка монеток
-        coins.forEach(coin => {
-            if (!coin.collected) {
-                ctx.fillStyle = '#f8d800';
-                ctx.beginPath();
-                ctx.arc(coin.x + 10, coin.y + 10, 10, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#f8b800';
-                ctx.beginPath();
-                ctx.arc(coin.x + 10, coin.y + 10, 6, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        });
-
-        // Отрисовка Марио (красивый спрайт из примитивов)
-        let px = player.x;
-        let py = player.y;
-
-        // Тело (комбинезон)
-        ctx.fillStyle = '#0000f8'; // синий низ
-        ctx.fillRect(px + 8, py + 20, 18, 16);
-        ctx.fillStyle = '#e52521'; // красная рубашка/голова
-        ctx.fillRect(px + 6, py + 10, 22, 12);
-        // Кепка
-        ctx.fillRect(px + 4, py + 4, 24, 6);
-        ctx.fillRect(px + 14, py + 2, 14, 4); // козырек
-        // Лицо
-        ctx.fillStyle = '#f8d8b8';
-        ctx.fillRect(px + 14, py + 10, 12, 10);
-        // Ботинки
-        ctx.fillStyle = '#842c00';
-        ctx.fillRect(px + 4, py + 34, 10, 4);
-        ctx.fillRect(px + 20, py + 34, 10, 4);
-
-        // Экран конца игры
-        if (gameOver) {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#ff3333';
-            ctx.font = 'bold 26px Arial';
-            ctx.fillText('ИГРА ОКОНЧЕНА', 70, 210);
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '16px Arial';
-            ctx.fillText('Нажмите на экран, чтобы начать заново', 40, 260);
+            // Show modal
+            document.getElementById("modalRarity").innerText = lastOpenedCar.rarity;
+            document.getElementById("modalRarity").className = "drop-rarity " + lastOpenedCar.rarityClass;
+            document.getElementById("modalEmoji").innerText = lastOpenedCar.emoji;
+            document.getElementById("modalCarName").innerText = lastOpenedCar.name;
+            document.getElementById("modalPrice").innerText = `Рыночная цена: +${lastOpenedCar.price.toLocaleString()} ₽`;
+            document.getElementById("dropModal").style.display = "flex";
         }
 
-        // Экран победы на уровне
-        if (levelCompleted) {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#33ff33';
-            ctx.font = 'bold 24px Arial';
-            ctx.fillText('УРОВЕНЬ ПРОЙДЕН! 🎉', 65, 210);
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '16px Arial';
-            ctx.fillText('Нажмите, чтобы перейти на след. уровень', 30, 260);
+        function closeModal() {
+            document.getElementById("dropModal").style.display = "none";
+            if (lastOpenedCar) {
+                garage.push(lastOpenedCar);
+                lastOpenedCar = null;
+                renderGarage();
+                updateUI();
+            }
         }
-    }
 
-    function loop() {
-        update();
-        draw();
-        if (!gameOver && !levelCompleted) {
-            requestAnimationFrame(loop);
+        function renderGarage() {
+            const list = document.getElementById("garageList");
+            document.getElementById("garageCount").innerText = garage.length;
+
+            let totalIncome = garage.reduce((sum, car) => sum + car.income, 0);
+            document.getElementById("passiveIncome").innerText = totalIncome;
+
+            if (garage.length === 0) {
+                list.innerHTML = `<p style="color: #6b7280; text-align: center; padding: 40px; font-size: 13px;">Ваш гараж пуст. Откройте первый контейнер на главной!</p>`;
+                return;
+            }
+
+            list.innerHTML = garage.map(item => `
+                <div class="item-row">
+                    <div class="item-info">
+                        <h4>${item.emoji} ${item.name}</h4>
+                        <p class="${item.rarityClass}">${item.rarity} · ${item.price.toLocaleString()} ₽ (+${item.income} ₽/м)</p>
+                    </div>
+                    <button class="action-sm-btn" style="background:#ef4444;" onclick="sellCar(${item.id})">Продать</button>
+                </div>
+            `).join('');
         }
-    }
 
-    loop();
-</script>
+        function sellCar(id) {
+            const car = garage.find(i => i.id === id);
+            if (car) {
+                money += Math.floor(car.price * 0.7); // 70% return on sale
+                garage = garage.filter(i => i.id !== id);
+                renderGarage();
+                updateUI();
+            }
+        }
 
+        function claimDaily() {
+            const now = Date.now();
+            if (now - lastDaily < 86400000) {
+                alert("Бесплатный контейнер можно забирать 1 раз в 24 часа!");
+                return;
+            }
+            lastDaily = now;
+            energy = Math.min(maxEnergy, energy + 15);
+            money += 50000;
+            updateUI();
+            alert("🎁 Ежедневный бонус получен! +15 энергии и +50 000 ₽!");
+        }
+
+        function updateUI() {
+            document.getElementById("energyText").innerText = `${energy}/${maxEnergy}`;
+            document.getElementById("moneyText").innerText = money.toLocaleString();
+            let netWorth = money + garage.reduce((sum, c) => sum + c.price, 0);
+            document.getElementById("topNetWorth").innerText = netWorth.toLocaleString();
+        }
+
+        // Passive income timer (every 5 seconds adds proportional income)
+        setInterval(() => {
+            if (garage.length > 0) {
+                let totalIncomeSec = garage.reduce((sum, car) => sum + car.income, 0) / 12;
+                money += Math.floor(totalIncomeSec);
+                updateUI();
+            }
+        }, 5000);
+
+        // Energy regen timer (1 energy every 2 minutes)
+        setInterval(() => {
+            if (energy < maxEnergy) {
+                energy += 1;
+                updateUI();
+            }
+        }, 120000);
+
+        function switchTab(tabName, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            document.getElementById('tab-' + tabName).classList.add('active');
+            btnElement.classList.add('active');
+        }
+
+        // Initialize Telegram WebApp
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+        }
+    </script>
 </body>
 </html>
