@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Super Mario Telegram Mini App</title>
+    <style>
+        body {
+            margin: 0;
+            background: #1a1a2e;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            touch-action: manipulation;
+            color: #fff;
+        }
+        #gameContainer {
+            text-align: center;
+            position: relative;
+        }
+        canvas {
+            background: linear-gradient(to bottom, #5c94fc, #b5e2fa);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 100%;
+            height: auto;
+        }
+        .info-panel {
+            margin-bottom: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            width: 360px;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+<div id="gameContainer">
+    <div class="info-panel">
+        <span id="levelText">Уровень: 1</span>
+        <span id="scoreText">Очки: 0/10</span>
+    </div>
+    <canvas id="gameCanvas" width="360" height="500"></canvas>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const levelText = document.getElementById('levelText');
+    const scoreText = document.getElementById('scoreText');
+
+    // Настройки игры и уровней
+    let currentLevel = 1;
+    let score = 0;
+    let gameOver = false;
+    let levelCompleted = false;
+
+    // Игрок (Марио)
+    let player = {
+        x: 60,
+        y: 380,
+        width: 34,
+        height: 38,
+        vy: 0,
+        gravity: 0.7,
+        jump: -11,
+        grounded: false
+    };
+
+    // Препятствия (Трубы) и бонусы (Монетки)
+    let obstacles = [];
+    let coins = [];
+    let clouds = [
+        { x: 50, y: 80, speed: 0.5, size: 40 },
+        { x: 200, y: 50, speed: 0.3, size: 60 },
+        { x: 320, y: 120, speed: 0.4, size: 50 }
+    ];
+
+    function initLevel() {
+        obstacles = [{ x: 400, y: 410, width: 30, height: 70 }];
+        coins = [{ x: 405, y: 330, collected: false }];
+    }
+
+    initLevel();
+
+    // Управление для телефонов и ПК
+    window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' || e.code === 'ArrowUp') {
+            action();
+        }
+    });
+
+    canvas.addEventListener('click', () => {
+        action();
+    });
+
+    canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        action();
+    }, { passive: false });
+
+    function action() {
+        if (gameOver || levelCompleted) {
+            if (gameOver) {
+                currentLevel = 1;
+                score = 0;
+            } else if (levelCompleted) {
+                currentLevel++;
+                if (currentLevel > 5) currentLevel = 1; // Зацикливание или финал
+                score = 0;
+            }
+            gameOver = false;
+            levelCompleted = false;
+            player.y = 380;
+            player.vy = 0;
+            initLevel();
+            loop();
+        } else if (player.grounded) {
+            player.vy = player.jump;
+            player.grounded = false;
+        }
+    }
+
+    function update() {
+        if (gameOver || levelCompleted) return;
+
+        // Гравитация
+        player.vy += player.gravity;
+        player.y += player.vy;
+
+        // Столкновение с полом
+        const floorY = 440 - player.height;
+        if (player.y > floorY) {
+            player.y = floorY;
+            player.vy = 0;
+            player.grounded = true;
+        }
+
+        // Скорость зависит от уровня (усложнение)
+        let gameSpeed = 3.5 + (currentLevel * 0.7);
+
+        // Движение облаков
+        clouds.forEach(cloud => {
+            cloud.x -= cloud.speed;
+            if (cloud.x < -60) cloud.x = canvas.width + 50;
+        });
+
+        // Движение препятствий
+        obstacles.forEach(obs => {
+            obs.x -= gameSpeed;
+
+            // Генерация новых труб
+            if (obs.x + obs.width < 0) {
+                obs.x = canvas.width + Math.random() * 100 + 120;
+                // Меняем высоту труб в зависимости от уровня
+                let minHeight = 40;
+                let maxHeight = 80 + (currentLevel * 10);
+                obs.height = Math.floor(Math.random() * (maxHeight - minHeight)) + minHeight;
+                obs.y = 440 - obs.height;
+            }
+
+            // Проверка столкновений с трубами
+            if (
+                player.x < obs.x + obs.width - 5 &&
+                player.x + player.width - 5 > obs.x &&
+                player.y + player.height > obs.y + 5
+            ) {
+                gameOver = true;
+            }
+        });
+
+        // Движение и сбор монеток
+        coins.forEach(coin => {
+            coin.x -= gameSpeed;
+            if (coin.x < -30) {
+                coin.x = canvas.width + Math.random() * 150 + 100;
+                coin.collected = false;
+            }
+
+            // Проверка сбора монетки
+            if (!coin.collected &&
+                player.x < coin.x + 20 &&
+                player.x + player.width > coin.x &&
+                player.y < coin.y + 20 &&
+                player.y + player.height > coin.y
+            ) {
+                coin.collected = true;
+                score++;
+                if (score >= 10 + (currentLevel * 2)) {
+                    levelCompleted = true;
+                }
+            }
+        });
+
+        // Обновление текста интерфейса
+        levelText.innerText = `Уровень: ${currentLevel}`;
+        scoreText.innerText = `Очки: ${score}/${10 + (currentLevel * 2)}`;
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Отрисовка облаков
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        clouds.forEach(cloud => {
+            ctx.beginPath();
+            ctx.arc(cloud.x, cloud.y, cloud.size / 2, 0, Math.PI * 2);
+            ctx.arc(cloud.x + cloud.size / 3, cloud.y - 10, cloud.size / 2.5, 0, Math.PI * 2);
+            ctx.arc(cloud.x + cloud.size / 1.5, cloud.y, cloud.size / 2.2, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        // Отрисовка холмов на фоне
+        ctx.fillStyle = '#38a169';
+        ctx.beginPath();
+        ctx.arc(80, 440, 70, Math.PI, 0, false);
+        ctx.arc(280, 440, 90, Math.PI, 0, false);
+        ctx.fill();
+
+        // Земля (кирпичный узор)
+        ctx.fillStyle = '#c84c0c';
+        ctx.fillRect(0, 440, canvas.width, 60);
+        ctx.fillStyle = '#fcbc3c';
+        ctx.fillRect(0, 440, canvas.width, 8);
+
+        // Отрисовка труб (в стиле Марио)
+        obstacles.forEach(obs => {
+            ctx.fillStyle = '#00a800';
+            ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+            // Шапка трубы
+            ctx.fillStyle = '#00f800';
+            ctx.fillRect(obs.x - 3, obs.y, obs.width + 6, 14);
+            // Блик на трубе
+            ctx.fillStyle = '#80ff80';
+            ctx.fillRect(obs.x + 4, obs.y + 16, 4, obs.height - 16);
+        });
+
+        // Отрисовка монеток
+        coins.forEach(coin => {
+            if (!coin.collected) {
+                ctx.fillStyle = '#f8d800';
+                ctx.beginPath();
+                ctx.arc(coin.x + 10, coin.y + 10, 10, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#f8b800';
+                ctx.beginPath();
+                ctx.arc(coin.x + 10, coin.y + 10, 6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        });
+
+        // Отрисовка Марио (красивый спрайт из примитивов)
+        let px = player.x;
+        let py = player.y;
+
+        // Тело (комбинезон)
+        ctx.fillStyle = '#0000f8'; // синий низ
+        ctx.fillRect(px + 8, py + 20, 18, 16);
+        ctx.fillStyle = '#e52521'; // красная рубашка/голова
+        ctx.fillRect(px + 6, py + 10, 22, 12);
+        // Кепка
+        ctx.fillRect(px + 4, py + 4, 24, 6);
+        ctx.fillRect(px + 14, py + 2, 14, 4); // козырек
+        // Лицо
+        ctx.fillStyle = '#f8d8b8';
+        ctx.fillRect(px + 14, py + 10, 12, 10);
+        // Ботинки
+        ctx.fillStyle = '#842c00';
+        ctx.fillRect(px + 4, py + 34, 10, 4);
+        ctx.fillRect(px + 20, py + 34, 10, 4);
+
+        // Экран конца игры
+        if (gameOver) {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#ff3333';
+            ctx.font = 'bold 26px Arial';
+            ctx.fillText('ИГРА ОКОНЧЕНА', 70, 210);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '16px Arial';
+            ctx.fillText('Нажмите на экран, чтобы начать заново', 40, 260);
+        }
+
+        // Экран победы на уровне
+        if (levelCompleted) {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#33ff33';
+            ctx.font = 'bold 24px Arial';
+            ctx.fillText('УРОВЕНЬ ПРОЙДЕН! 🎉', 65, 210);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '16px Arial';
+            ctx.fillText('Нажмите, чтобы перейти на след. уровень', 30, 260);
+        }
+    }
+
+    function loop() {
+        update();
+        draw();
+        if (!gameOver && !levelCompleted) {
+            requestAnimationFrame(loop);
+        }
+    }
+
+    loop();
+</script>
+
+</body>
+</html>
