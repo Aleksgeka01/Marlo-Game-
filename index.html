@@ -10,7 +10,7 @@
             --bg-dark: #121216;
             --cs-yellow: #d9bc67;
             --cs-orange: #e08b24;
-            --cs-panel: rgba(26, 26, 36, 0.9);
+            --cs-panel: rgba(26, 26, 36, 0.95);
             --text-main: #ffffff;
         }
         * {
@@ -30,7 +30,6 @@
             display: flex;
             flex-direction: column;
         }
-        /* Игровая верхняя панель (HUD) */
         .hud {
             position: absolute;
             top: 0; left: 0; width: 100%;
@@ -48,7 +47,6 @@
         .timer { color: var(--cs-yellow); }
         .score { color: #3498db; }
 
-        /* Канвас игры */
         #gameCanvas {
             display: block;
             background: #2b2b2b;
@@ -56,7 +54,6 @@
             flex: 1;
         }
 
-        /* Меню покупки (Buy Menu) */
         .buy-menu {
             position: absolute;
             top: 50%; left: 50%;
@@ -92,44 +89,50 @@
         }
         .buy-btn:hover { background: #333; border-color: var(--cs-yellow); }
 
-        /* Мобильные элементы управления */
-        .controls-overlay {
+        /* Кнопки движения (D-Pad) слева */
+        .dpad-container {
             position: absolute;
-            bottom: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
+            bottom: 20px; left: 20px;
+            width: 150px; height: 150px;
             z-index: 10;
-        }
-        .joystick-base {
-            position: absolute;
-            bottom: 30px; left: 30px;
-            width: 110px; height: 110px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
             pointer-events: auto;
         }
-        .joystick-knob {
+        .d-btn {
             position: absolute;
-            top: 30px; left: 30px;
-            width: 50px; height: 50px;
-            background: rgba(217, 188, 103, 0.6);
-            border-radius: 50%;
-            pointer-events: none;
+            background: rgba(255, 255, 255, 0.12);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            font-weight: bold;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            backdrop-filter: blur(4px);
         }
+        .d-btn:active { background: rgba(217, 188, 103, 0.5); border-color: var(--cs-yellow); }
+        .btn-up { top: 0; left: 50px; width: 50px; height: 50px; }
+        .btn-down { bottom: 0; left: 50px; width: 50px; height: 50px; }
+        .btn-left { top: 50px; left: 0; width: 50px; height: 50px; }
+        .btn-right { top: 50px; right: 0; width: 50px; height: 50px; }
+
+        /* Кнопки действий справа */
         .action-buttons {
             position: absolute;
-            bottom: 30px; right: 20px;
+            bottom: 25px; right: 20px;
             display: flex;
             gap: 12px;
+            align-items: center;
+            z-index: 10;
             pointer-events: auto;
         }
         .action-btn {
-            width: 65px; height: 65px;
+            width: 60px; height: 60px;
             background: rgba(20, 20, 25, 0.7);
             border: 2px solid var(--cs-yellow);
             border-radius: 50%;
             color: #fff;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
             display: flex;
             align-items: center;
@@ -139,13 +142,12 @@
         .action-btn:active { background: var(--cs-yellow); color: #000; }
         
         .fire-btn {
-            width: 80px; height: 80px;
-            background: rgba(224, 139, 36, 0.8);
+            width: 85px; height: 85px;
+            background: rgba(224, 139, 36, 0.85);
             border-color: #fff;
-            font-size: 14px;
+            font-size: 15px;
         }
 
-        /* Кнопка закупки в углу */
         .buy-toggle-btn {
             position: absolute;
             top: 50px; right: 15px;
@@ -163,7 +165,6 @@
 </head>
 <body>
 
-    <!-- HUD -->
     <div class="hud">
         <div class="hud-group">
             <span class="score">Т: <span id="tScore">0</span> | КТ: <span id="ctScore">0</span></span>
@@ -171,16 +172,14 @@
         </div>
         <div class="hud-group">
             <span class="money" id="playerMoney">$800</span>
-            <span id="ammoText">30 / 90</span>
+            <span id="ammoText">12 / 36</span>
         </div>
     </div>
 
     <button class="buy-toggle-btn" onclick="toggleBuyMenu()">🛒 ЗАКУПКА (B)</button>
 
-    <!-- Игровой холст -->
     <canvas id="gameCanvas"></canvas>
 
-    <!-- Меню покупки оружия -->
     <div class="buy-menu" id="buyMenu">
         <h3>ARMS RACE SHOP</h3>
         <button class="buy-btn" onclick="buyWeapon('usp', 200)"><span>USP-S / Glock</span><span>$200</span></button>
@@ -190,15 +189,18 @@
         <button class="buy-btn" onclick="toggleBuyMenu()" style="background:#555; text-align:center; justify-content:center; margin-top:10px;">Закрыть</button>
     </div>
 
-    <!-- Мобильный джойстик и кнопки -->
-    <div class="controls-overlay">
-        <div class="joystick-base" id="joystickBase">
-            <div class="joystick-knob" id="joystickKnob"></div>
-        </div>
-        <div class="action-buttons">
-            <div class="action-btn" onclick="reloadWeapon()">RELOAD</div>
-            <div class="action-btn fire-btn" id="fireBtn">FIRE</div>
-        </div>
+    <!-- Кнопочное управление (D-Pad) слева -->
+    <div class="dpad-container">
+        <div class="d-btn btn-up" id="btnUp">▲</div>
+        <div class="d-btn btn-left" id="btnLeft">◀</div>
+        <div class="d-btn btn-right" id="btnRight">▶</div>
+        <div class="d-btn btn-down" id="btnDown">▼</div>
+    </div>
+
+    <!-- Кнопки справа -->
+    <div class="action-buttons">
+        <div class="action-btn" onclick="reloadWeapon()">RELOAD</div>
+        <div class="action-btn fire-btn" id="fireBtn">FIRE</div>
     </div>
 
     <script>
@@ -212,14 +214,12 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // Игровое состояние
         let money = 800;
         let tScore = 0;
         let ctScore = 0;
         let playerWeapon = 'usp';
         let ammo = 12;
-        let reserveAmmo = 24;
-        let maxAmmo = 12;
+        let reserveAmmo = 36;
 
         const weapons = {
             usp: { damage: 25, fireRate: 350, reloadTime: 1800, maxClip: 12, range: 400 },
@@ -232,10 +232,9 @@
             x: canvas.width / 2,
             y: canvas.height / 2,
             radius: 16,
-            speed: 3.5,
+            speed: 4,
             angle: 0,
-            health: 100,
-            team: 'CT'
+            health: 100
         };
 
         let bullets = [];
@@ -243,68 +242,39 @@
         let lastShotTime = 0;
         let isFiring = false;
 
-        // Инициализация ботов (Террористов)
+        // Состояние нажатия кнопок движения
+        let input = { up: false, down: false, left: false, right: false };
+
+        function setupButton(id, key) {
+            const el = document.getElementById(id);
+            el.addEventListener('pointerdown', (e) => { e.preventDefault(); input[key] = true; });
+            el.addEventListener('pointerup', (e) => { e.preventDefault(); input[key] = false; });
+            el.addEventListener('pointerleave', (e) => { e.preventDefault(); input[key] = false; });
+        }
+
+        setupButton('btnUp', 'up');
+        setupButton('btnDown', 'down');
+        setupButton('btnLeft', 'left');
+        setupButton('btnRight', 'right');
+
         function spawnBots() {
             enemies = [];
             for (let i = 0; i < 4; i++) {
-                enemies.initSpawn = true;
                 enemies.push({
                     x: Math.random() * (canvas.width - 100) + 50,
                     y: Math.random() * 200 + 50,
                     radius: 16,
                     health: 100,
-                    speed: 1.8,
-                    angle: 0,
-                    team: 'T'
+                    speed: 1.8
                 });
             }
         }
         spawnBots();
 
-        // Управление джойстиком
-        let joystickActive = false;
-        let moveVector = { x: 0, y: 0 };
-        const jBase = document.getElementById('joystickBase');
-        const jKnob = document.getElementById('joystickKnob');
-
-        jBase.addEventListener('pointerdown', (e) => {
-            joystickActive = true;
-            updateJoystick(e);
-        });
-
-        window.addEventListener('pointermove', (e) => {
-            if (joystickActive) updateJoystick(e);
-        });
-
-        window.addEventListener('pointerup', () => {
-            joystickActive = false;
-            moveVector = { x: 0, y: 0 };
-            jKnob.style.transform = `translate(0px, 0px)`;
-        });
-
-        function updateJoystick(e) {
-            const rect = jBase.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-            const dx = e.clientX - centerX;
-            const dy = e.clientY - centerY;
-            const dist = Math.hypot(dx, dy);
-            const maxDist = 40;
-
-            const angle = Math.atan2(dy, dx);
-            const clampedDist = Math.min(dist, maxDist);
-
-            moveVector.x = Math.cos(angle) * (clampedDist / maxDist);
-            moveVector.y = Math.sin(angle) * (clampedDist / maxDist);
-
-            jKnob.style.transform = `translate(${Math.cos(angle)*clampedDist}px, ${Math.sin(angle)*clampedDist}px)`;
-        }
-
-        // Стрельба
         const fireBtn = document.getElementById('fireBtn');
-        fireBtn.addEventListener('pointerdown', () => { isFiring = true; });
-        fireBtn.addEventListener('pointerup', () => { isFiring = false; });
-        fireBtn.addEventListener('pointerleave', () => { isFiring = false; });
+        fireBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); isFiring = true; });
+        fireBtn.addEventListener('pointerup', (e) => { e.preventDefault(); isFiring = false; });
+        fireBtn.addEventListener('pointerleave', (e) => { e.preventDefault(); isFiring = false; });
 
         function shoot() {
             const now = Date.now();
@@ -319,7 +289,6 @@
             lastShotTime = now;
             updateHUD();
 
-            // Создаем пулю с разбросом
             const spread = (Math.random() - 0.5) * 0.08;
             bullets.push({
                 x: player.x + Math.cos(player.angle) * 20,
@@ -328,8 +297,7 @@
                 vy: Math.sin(player.angle + spread) * 12,
                 damage: w.damage,
                 range: w.range,
-                traveled: 0,
-                team: 'CT'
+                traveled: 0
             });
         }
 
@@ -369,17 +337,17 @@
             document.getElementById('ctScore').innerText = ctScore;
         }
 
-        // Основной игровой цикл
         function update() {
-            // Движение игрока
-            player.x += moveVector.x * player.speed;
-            player.y += moveVector.y * player.speed;
+            // Движение по кнопкам D-Pad
+            if (input.up) player.y -= player.speed;
+            if (input.down) player.y += player.speed;
+            if (input.left) player.x -= player.speed;
+            if (input.right) player.x += player.speed;
 
-            // Ограничение границами карты (De_dust стиль стен)
             player.x = Math.max(20, Math.min(canvas.width - 20, player.x));
             player.y = Math.max(20, Math.min(canvas.height - 20, player.y));
 
-            // Поворот в сторону ближайшего врага или по движению
+            // Поворот в сторону ближайшего врага
             if (enemies.length > 0) {
                 let target = enemies[0];
                 player.angle = Math.atan2(target.y - player.y, target.x - player.x);
@@ -389,7 +357,7 @@
                 shoot();
             }
 
-            // Обновление пуль
+            // Пули
             for (let i = bullets.length - 1; i >= 0; i--) {
                 let b = bullets[i];
                 b.x += b.vx;
@@ -401,35 +369,31 @@
                     continue;
                 }
 
-                // Проверка попадания в ботов
-                if (b.team === 'CT') {
-                    for (let j = enemies.length - 1; j >= 0; j--) {
-                        let en = enemies[j];
-                        if (Math.hypot(b.x - en.x, b.y - en.y) < en.radius) {
-                            en.health -= b.damage;
-                            bullets.splice(i, 1);
-                            if (en.health <= 0) {
-                                enemies.splice(j, 1);
-                                money += 300;
-                                if (enemies.length === 0) {
-                                    ctScore++;
-                                    money += 3200;
-                                    setTimeout(spawnBots, 2000);
-                                }
+                for (let j = enemies.length - 1; j >= 0; j--) {
+                    let en = enemies[j];
+                    if (Math.hypot(b.x - en.x, b.y - en.y) < en.radius) {
+                        en.health -= b.damage;
+                        bullets.splice(i, 1);
+                        if (en.health <= 0) {
+                            enemies.splice(j, 1);
+                            money += 300;
+                            if (enemies.length === 0) {
+                                ctScore++;
+                                money += 3200;
+                                setTimeout(spawnBots, 2000);
                             }
-                            break;
                         }
+                        break;
                     }
                 }
             }
 
-            // ИИ ботов (движение к игроку)
+            // Боты
             enemies.forEach(en => {
                 let angleToPlayer = Math.atan2(player.y - en.y, player.x - en.x);
                 en.x += Math.cos(angleToPlayer) * en.speed;
                 en.y += Math.sin(angleToPlayer) * en.speed;
 
-                // Урон игроку при контакте
                 if (Math.hypot(player.x - en.x, player.y - en.y) < player.radius + en.radius) {
                     player.health -= 0.5;
                     if (player.health <= 0) {
@@ -447,7 +411,6 @@
             ctx.fillStyle = '#1e1e24';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Отрисовка тактической сетки карты (Dust2 floor style)
             ctx.strokeStyle = 'rgba(255,255,255,0.03)';
             ctx.lineWidth = 1;
             for (let x = 0; x < canvas.width; x += 40) {
@@ -457,7 +420,6 @@
                 ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
             }
 
-            // Отрисовка пуль
             ctx.fillStyle = '#f1c40f';
             bullets.forEach(b => {
                 ctx.beginPath();
@@ -465,11 +427,10 @@
                 ctx.fill();
             });
 
-            // Отрисовка Террористов (Ботов)
             enemies.forEach(en => {
                 ctx.save();
                 ctx.translate(en.x, en.y);
-                ctx.fillStyle = '#e74c3c'; // Красные (Terrorists)
+                ctx.fillStyle = '#e74c3c';
                 ctx.beginPath();
                 ctx.arc(0, 0, en.radius, 0, Math.PI * 2);
                 ctx.fill();
@@ -479,12 +440,10 @@
                 ctx.restore();
             });
 
-            // Отрисовка игрока (Counter-Terrorist)
             ctx.save();
             ctx.translate(player.x, player.y);
             ctx.rotate(player.angle);
             
-            // Тело CT
             ctx.fillStyle = '#3498db';
             ctx.beginPath();
             ctx.arc(0, 0, player.radius, 0, Math.PI * 2);
@@ -493,7 +452,6 @@
             ctx.strokeStyle = '#2980b9';
             ctx.stroke();
 
-            // Ствол оружия
             ctx.fillStyle = '#000';
             ctx.fillRect(0, -4, 22, 8);
 
