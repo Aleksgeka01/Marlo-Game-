@@ -15,7 +15,6 @@
             --gold-gradient: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
             --gold-border: rgba(245, 158, 11, 0.4);
             --accent-neon: #ec4899;
-            --accent-cyan: #06b6d4;
             --text-main: #ffffff;
             --text-secondary: #9ca3af;
             --border-color: rgba(255, 255, 255, 0.08);
@@ -521,7 +520,7 @@
                 cars: [
                     { name: "Ford Focus SE", img: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 350000, income: 300 },
                     { name: "Chevrolet Cruze", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 480000, income: 400 },
-                    { name: "Jeep Grand Cherokee", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 1850000, income: 1500 },
+                    { name: "Jeep Grand Cherokee", img: "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 1850000, income: 1500 },
                     { name: "Chevrolet Camaro LT", img: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 3200000, income: 2800 },
                     { name: "Dodge Charger SRT", img: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=300", rarity: "Эпический", rarityClass: "rarity-epic", price: 14500000, income: 12000 },
                     { name: "Ford Mustang Shelby", img: "https://images.unsplash.com/photo-1584345622-53bd4826b147?w=300", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 38000000, income: 35000 },
@@ -654,7 +653,7 @@
             }
 
             if (garage.length >= 500) {
-                alert("Гараж заполнено (максимум 500 машин)!");
+                alert("Гараж заполнен (максимум 500 машин)!");
                 saveState();
                 updateUI();
                 return;
