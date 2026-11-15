@@ -3,821 +3,511 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Global Auto Auction — Ultimate Casino Edition</title>
+    <title>Counter-Strike 1.6: Telegram Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-base: #050508;
-            --bg-card: #0e0e14;
-            --bg-card-hover: #161622;
-            --gold: #f59e0b;
-            --gold-light: #fbbf24;
-            --gold-gradient: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
-            --gold-border: rgba(245, 158, 11, 0.4);
-            --accent-neon: #ec4899;
+            --bg-dark: #121216;
+            --cs-yellow: #d9bc67;
+            --cs-orange: #e08b24;
+            --cs-panel: rgba(26, 26, 36, 0.9);
             --text-main: #ffffff;
-            --text-secondary: #9ca3af;
-            --border-color: rgba(255, 255, 255, 0.08);
         }
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Tahoma', sans-serif;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
         body {
-            background-color: var(--bg-base);
+            background-color: var(--bg-dark);
             color: var(--text-main);
-            display: flex;
-            flex-direction: column;
+            overflow: hidden;
+            width: 100vw;
             height: 100vh;
-            overflow: hidden;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 16px;
-            background: rgba(14, 14, 20, 0.9);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--gold-border);
-            z-index: 50;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-        }
-        .user-level {
-            font-size: 12px;
-            font-weight: 800;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .user-level span { color: var(--gold); }
-        .stats-container {
-            display: flex;
-            gap: 8px;
-        }
-        .stats-badge {
-            background: var(--bg-card);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 900;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            border: 1px solid var(--border-color);
-        }
-        .energy-badge { color: #fbbf24; border-color: rgba(251,191,36,0.3); }
-        .money-badge { color: #10b981; border-color: rgba(16,185,129,0.3); }
-
-        .content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            padding-bottom: 110px;
             display: flex;
             flex-direction: column;
-            align-items: center;
         }
-        .tab-content {
-            display: none;
-            width: 100%;
-            max-width: 440px;
-            flex-direction: column;
-            align-items: center;
-            animation: fadeIn 0.2s ease-in-out;
-        }
-        .tab-content.active { display: flex; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .section-title {
-            font-size: 18px;
-            font-weight: 900;
-            margin-bottom: 14px;
-            align-self: flex-start;
-            color: #fff;
-            letter-spacing: -0.3px;
-            text-shadow: 0 2px 10px rgba(245,158,11,0.2);
-        }
-
-        .country-selector {
-            display: flex;
-            gap: 8px;
-            width: 100%;
-            overflow-x: auto;
-            padding-bottom: 6px;
-            margin-bottom: 16px;
-            scrollbar-width: none;
-        }
-        .country-selector::-webkit-scrollbar { display: none; }
-        .country-chip {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            padding: 8px 14px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 800;
-            cursor: pointer;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-        }
-        .country-chip.active {
-            background: rgba(245, 158, 11, 0.2);
-            border-color: var(--gold);
-            color: var(--gold);
-            box-shadow: 0 0 15px rgba(245,158,11,0.25);
-        }
-
-        .containers-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 14px;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-        .container-card {
-            background: linear-gradient(135deg, #0e0e14 0%, #181824 100%);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 16px;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .container-card:active { transform: scale(0.97); }
-        .container-card.featured {
-            background: linear-gradient(135deg, #1f160b 0%, #3d2208 100%);
-            border-color: var(--gold);
-            box-shadow: 0 10px 35px rgba(245,158,11,0.25);
-        }
-        .container-info h3 { font-size: 16px; font-weight: 900; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
-        .container-info p { font-size: 11px; color: var(--text-secondary); margin-bottom: 10px; max-width: 210px; }
-        .container-price-tag {
-            background: rgba(0,0,0,0.6);
-            padding: 6px 12px;
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: 900;
-            color: var(--gold);
-            border: 1px solid rgba(245,158,11,0.3);
-            display: inline-block;
-        }
-        .container-img {
-            width: 95px;
-            height: 70px;
-            object-fit: cover;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-
-        .gacha-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(3, 3, 5, 0.96);
-            backdrop-filter: blur(25px);
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            padding: 20px;
-        }
-        .gacha-box-container {
-            width: 100%;
-            max-width: 390px;
-            background: #0d0d12;
-            border: 2px solid var(--gold);
-            border-radius: 30px;
-            padding: 24px 16px;
-            text-align: center;
-            box-shadow: 0 0 60px rgba(245, 158, 11, 0.4);
-            position: relative;
-        }
-        .roulette-window {
-            width: 100%;
-            height: 180px;
-            background: #050508;
-            border-radius: 18px;
-            border: 1px solid rgba(245,158,11,0.4);
-            overflow: hidden;
-            position: relative;
-            margin: 16px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .roulette-pointer {
+        /* Игровая верхняя панель (HUD) */
+        .hud {
             position: absolute;
-            top: 0; bottom: 0; left: 50%;
-            width: 4px;
-            background: #fff;
-            transform: translateX(-50%);
-            z-index: 10;
-            box-shadow: 0 0 15px var(--gold);
+            top: 0; left: 0; width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            z-index: 20;
+            font-size: 14px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px #000;
         }
-        .roulette-track {
+        .hud-group { display: flex; gap: 15px; }
+        .money { color: #2ecc71; }
+        .timer { color: var(--cs-yellow); }
+        .score { color: #3498db; }
+
+        /* Канвас игры */
+        #gameCanvas {
+            display: block;
+            background: #2b2b2b;
+            touch-action: none;
+            flex: 1;
+        }
+
+        /* Меню покупки (Buy Menu) */
+        .buy-menu {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--cs-panel);
+            border: 2px solid var(--cs-yellow);
+            border-radius: 8px;
+            padding: 15px;
+            width: 280px;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .buy-menu h3 {
+            text-align: center;
+            color: var(--cs-yellow);
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .buy-btn {
+            background: #222;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 8px;
+            width: 100%;
+            margin-bottom: 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+        }
+        .buy-btn:hover { background: #333; border-color: var(--cs-yellow); }
+
+        /* Мобильные элементы управления */
+        .controls-overlay {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .joystick-base {
+            position: absolute;
+            bottom: 30px; left: 30px;
+            width: 110px; height: 110px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            pointer-events: auto;
+        }
+        .joystick-knob {
+            position: absolute;
+            top: 30px; left: 30px;
+            width: 50px; height: 50px;
+            background: rgba(217, 188, 103, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .action-buttons {
+            position: absolute;
+            bottom: 30px; right: 20px;
             display: flex;
             gap: 12px;
-            position: absolute;
-            left: 50%;
-            transition: transform 3.5s cubic-bezier(0.06, 0.84, 0.12, 1);
+            pointer-events: auto;
         }
-        .roulette-item {
-            min-width: 125px;
-            height: 150px;
-            background: #14141d;
-            border-radius: 14px;
-            border: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-        }
-        .roulette-item img {
-            width: 95px;
-            height: 65px;
-            object-fit: cover;
-            border-radius: 10px;
-        }
-        .roulette-item span {
-            font-size: 10px;
-            font-weight: 800;
-            text-align: center;
+        .action-btn {
+            width: 65px; height: 65px;
+            background: rgba(20, 20, 25, 0.7);
+            border: 2px solid var(--cs-yellow);
+            border-radius: 50%;
             color: #fff;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-        }
-
-        .win-details {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            animation: winPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.3);
-        }
-        @keyframes winPop {
-            0% { transform: scale(0.5); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .win-rarity { font-size: 13px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
-        .win-car-img {
-            width: 230px;
-            height: 140px;
-            object-fit: cover;
-            border-radius: 18px;
-            border: 2px solid var(--gold);
-            margin: 10px 0;
-            box-shadow: 0 15px 35px rgba(245,158,11,0.4);
-        }
-        .win-car-name { font-size: 21px; font-weight: 900; margin-bottom: 4px; color: #fff; text-align: center; }
-        .win-price { font-size: 19px; font-weight: 900; color: #10b981; margin-bottom: 16px; }
-
-        .btn {
-            background: var(--gold-gradient);
-            color: #fff;
-            border: none;
-            width: 100%;
-            padding: 15px;
-            border-radius: 16px;
-            font-size: 15px;
-            font-weight: 900;
-            cursor: pointer;
-            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
-            text-transform: uppercase;
-        }
-        .btn:active { transform: scale(0.97); }
-        .btn-secondary {
-            background: var(--bg-card-hover);
-            color: #d1d5db;
-            border: 1px solid var(--border-color);
-            margin-top: 10px;
-            box-shadow: none;
-        }
-
-        .garage-stats {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 14px 16px;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 14px;
             font-size: 12px;
-            color: var(--text-secondary);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
-        .garage-stats span { color: #fff; font-weight: 900; }
+        .action-btn:active { background: var(--cs-yellow); color: #000; }
         
-        .list-container {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .item-row {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            padding: 12px 14px;
-            border-radius: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .item-thumb {
-            width: 70px;
-            height: 48px;
-            object-fit: cover;
-            border-radius: 10px;
-            margin-right: 12px;
-            border: 1px solid var(--border-color);
-        }
-        .item-info { display: flex; align-items: center; flex: 1; }
-        .item-details h4 { font-size: 14px; margin-bottom: 2px; font-weight: 800; color: #fff; }
-        .item-details p { font-size: 11px; color: var(--text-secondary); }
-        .action-sm-btn {
-            background: rgba(239, 68, 68, 0.15);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            padding: 6px 12px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 800;
-            cursor: pointer;
+        .fire-btn {
+            width: 80px; height: 80px;
+            background: rgba(224, 139, 36, 0.8);
+            border-color: #fff;
+            font-size: 14px;
         }
 
-        .nav-bar {
-            position: fixed;
-            bottom: 0; left: 0;
-            width: 100%;
-            background: rgba(8, 8, 12, 0.95);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid var(--gold-border);
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0 22px 0;
-            z-index: 100;
-        }
-        .nav-item {
-            background: none;
+        /* Кнопка закупки в углу */
+        .buy-toggle-btn {
+            position: absolute;
+            top: 50px; right: 15px;
+            background: var(--cs-orange);
+            color: #000;
             border: none;
-            color: var(--text-secondary);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 11px;
+            padding: 8px 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            z-index: 25;
             cursor: pointer;
-            gap: 4px;
-            font-weight: 700;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.4);
         }
-        .nav-item.active { color: var(--gold); text-shadow: 0 0 10px rgba(245,158,11,0.5); }
-        .nav-item svg { width: 22px; height: 22px; fill: currentColor; }
-
-        .rarity-common { color: #9ca3af; }
-        .rarity-rare { color: #3b82f6; }
-        .rarity-epic { color: #a855f7; }
-        .rarity-legendary { color: #f59e0b; text-shadow: 0 0 12px rgba(245,158,11,0.5); }
-        .rarity-mythic { color: #ef4444; text-shadow: 0 0 16px rgba(239,68,68,0.7); }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="user-level" id="userLevelText">Уровень <span id="lvlNum">1</span> · Казино Магнат</div>
-        <div class="stats-container">
-            <div class="stats-badge energy-badge">⚡ <span id="energyText">50/50</span></div>
-            <div class="stats-badge money-badge">₽ <span id="moneyText">500 000</span></div>
+    <!-- HUD -->
+    <div class="hud">
+        <div class="hud-group">
+            <span class="score">Т: <span id="tScore">0</span> | КТ: <span id="ctScore">0</span></span>
+            <span class="timer" id="roundTimer">1:55</span>
+        </div>
+        <div class="hud-group">
+            <span class="money" id="playerMoney">$800</span>
+            <span id="ammoText">30 / 90</span>
         </div>
     </div>
 
-    <div class="content">
-        <div id="tab-home" class="tab-content active">
-            <div class="section-title">🎰 10 Элитных Казино-Контейнеров</div>
-            
-            <div class="country-selector">
-                <div class="country-chip active" onclick="filterRegion('all', this)">🌐 Все</div>
-                <div class="country-chip" onclick="filterRegion('usa', this)">🇺🇸 США</div>
-                <div class="country-chip" onclick="filterRegion('germany', this)">🇩🇪 Германия</div>
-                <div class="country-chip" onclick="filterRegion('japan', this)">🇯🇵 Япония</div>
-                <div class="country-chip" onclick="filterRegion('china', this)">🇨🇳 Китай</div>
-                <div class="country-chip" onclick="filterRegion('korea', this)">🇰🇷 Корея</div>
-                <div class="country-chip" onclick="filterRegion('italy', this)">🇮🇹 Италия</div>
-                <div class="country-chip" onclick="filterRegion('uae', this)">🇦🇪 ОАЭ</div>
-                <div class="country-chip" onclick="filterRegion('uk', this)">🇬🇧 Британия</div>
-                <div class="country-chip" onclick="filterRegion('france', this)">🇫🇷 Франция</div>
-                <div class="country-chip" onclick="filterRegion('cis', this)">🇷🇺 СНГ</div>
-            </div>
+    <button class="buy-toggle-btn" onclick="toggleBuyMenu()">🛒 ЗАКУПКА (B)</button>
 
-            <div class="containers-grid" id="containersGrid"></div>
+    <!-- Игровой холст -->
+    <canvas id="gameCanvas"></canvas>
 
-            <div class="section-title" style="margin-top: 10px;">⚡ Бонусы казино</div>
-            <button class="btn btn-secondary" onclick="claimDaily()">🎁 Бесплатный кейс (раз в сутки)</button>
-        </div>
-
-        <div id="tab-garage" class="tab-content">
-            <div class="section-title">🚗 Мой элитный гараж</div>
-            <div class="garage-stats">
-                <div>Автомобилей: <span id="garageCount">0</span>/500</div>
-                <div>Пассивный доход: <span id="passiveIncome">0</span> ₽/мин</div>
-            </div>
-            <div class="list-container" id="garageList"></div>
-        </div>
-
-        <div id="tab-rating" class="tab-content">
-            <div class="section-title">🏆 Зал славы казино</div>
-            <div class="list-container">
-                <div class="item-row" style="border-color: var(--gold); background: linear-gradient(135deg, rgba(245,158,11,0.15) 0%, #0e0e14 100%);">
-                    <div class="item-info">
-                        <div class="item-details">
-                            <h4 style="color: var(--gold);">👑 #1 Вы (Магнат)</h4>
-                            <p>Капитал гаража: <span id="topNetWorth">500 000</span> ₽</p>
-                        </div>
-                    </div>
-                    <span style="color: var(--gold); font-weight: 900;">TOP 1</span>
-                </div>
-            </div>
-        </div>
-
-        <div id="tab-tasks" class="tab-content">
-            <div class="section-title">📜 Контракты казино</div>
-            <div class="list-container">
-                <div class="item-row">
-                    <div class="item-info">
-                        <div class="item-details">
-                            <h4>Открыть 5 контейнеров</h4>
-                            <p>Награда: +50 энергии ⚡</p>
-                        </div>
-                    </div>
-                    <button class="action-sm-btn" style="background:var(--gold); color:#000;" onclick="alert('Задание выполнено!')">Забрать</button>
-                </div>
-            </div>
-        </div>
+    <!-- Меню покупки оружия -->
+    <div class="buy-menu" id="buyMenu">
+        <h3>ARMS RACE SHOP</h3>
+        <button class="buy-btn" onclick="buyWeapon('usp', 200)"><span>USP-S / Glock</span><span>$200</span></button>
+        <button class="buy-btn" onclick="buyWeapon('mp5', 1500)"><span>MP5 Navy SMG</span><span>$1500</span></button>
+        <button class="buy-btn" onclick="buyWeapon('ak47', 2700)"><span>AK-47 / M4A1</span><span>$2700</span></button>
+        <button class="buy-btn" onclick="buyWeapon('awp', 4750)"><span>AWP Sniper Rifle</span><span>$4750</span></button>
+        <button class="buy-btn" onclick="toggleBuyMenu()" style="background:#555; text-align:center; justify-content:center; margin-top:10px;">Закрыть</button>
     </div>
 
-    <div class="gacha-overlay" id="gachaOverlay">
-        <div class="gacha-box-container">
-            <h3 style="font-size: 16px; margin-bottom: 6px; color: var(--gold);" id="gachaStatusTitle">🎰 РУЛЕТКА КАЗИНО ЗАПУЩЕНА...</h3>
-            
-            <div class="roulette-window" id="rouletteWindow">
-                <div class="roulette-pointer"></div>
-                <div class="roulette-track" id="rouletteTrack"></div>
-            </div>
-
-            <div class="win-details" id="winDetails">
-                <div class="win-rarity" id="modalRarity">Легендарный</div>
-                <img src="" class="win-car-img" id="modalImg" alt="Car">
-                <div class="win-car-name" id="modalCarName">Dodge Charger SRT</div>
-                <div class="win-price" id="modalPrice">+45 000 000 ₽</div>
-                <button class="btn" onclick="closeGachaModal()">Забрать в гараж 🚗</button>
-            </div>
+    <!-- Мобильный джойстик и кнопки -->
+    <div class="controls-overlay">
+        <div class="joystick-base" id="joystickBase">
+            <div class="joystick-knob" id="joystickKnob"></div>
         </div>
-    </div>
-
-    <div class="nav-bar">
-        <button class="nav-item active" onclick="switchTab('home', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11z"/><path d="M12 6L5 18h14z"/></svg>
-            Аукцион
-        </button>
-        <button class="nav-item" onclick="switchTab('garage', this)">
-            <svg viewBox="0 0 24 24"><path d="M19 5H5c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 12H5V7h14v10z"/></svg>
-            Гараж
-        </button>
-        <button class="nav-item" onclick="switchTab('rating', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            Рейтинг
-        </button>
-        <button class="nav-item" onclick="switchTab('tasks', this)">
-            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-            Задания
-        </button>
+        <div class="action-buttons">
+            <div class="action-btn" onclick="reloadWeapon()">RELOAD</div>
+            <div class="action-btn fire-btn" id="fireBtn">FIRE</div>
+        </div>
     </div>
 
     <script>
-        let energy = parseInt(localStorage.getItem('gaa_energy')) || 50;
-        let maxEnergy = 50;
-        let money = parseInt(localStorage.getItem('gaa_money')) || 500000;
-        let garage = JSON.parse(localStorage.getItem('gaa_garage')) || [];
-        let lastDaily = parseInt(localStorage.getItem('gaa_daily')) || 0;
-        let wonCar = null;
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-        const containersData = [
-            {
-                id: 'usa', name: 'Контейнер США', flag: '🇺🇸', desc: 'Muscle cars и американские монстры', costEn: 8, costRub: 60000, img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=300', featured: false,
-                cars: [
-                    { name: "Ford Focus SE", img: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 350000, income: 300 },
-                    { name: "Chevrolet Cruze", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 480000, income: 400 },
-                    { name: "Jeep Grand Cherokee", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 1850000, income: 1500 },
-                    { name: "Chevrolet Camaro LT", img: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 3200000, income: 2800 },
-                    { name: "Dodge Charger SRT", img: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=300", rarity: "Эпический", rarityClass: "rarity-epic", price: 14500000, income: 12000 },
-                    { name: "Ford Mustang Shelby", img: "https://images.unsplash.com/photo-1584345622-53bd4826b147?w=300", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 38000000, income: 35000 },
-                    { name: "Tesla Cybertruck", img: "https://images.unsplash.com/photo-1563720223185-11003d516935?w=300", rarity: "Мифический", rarityClass: "rarity-mythic", price: 85000000, income: 80000 }
-                ]
-            },
-            {
-                id: 'germany', name: 'Контейнер Германии', flag: '🇩🇪', desc: 'Немецкий премиум и спорткары', costEn: 12, costRub: 100000, img: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=300', featured: true,
-                cars: [
-                    { name: "Volkswagen Golf VII", img: "https://images.unsplash.com/photo-1541899481282-d53bffe3c351?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 850000, income: 700 },
-                    { name: "BMW E39 530i", img: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 1400000, income: 1200 },
-                    { name: "Audi RS6 Avant", img: "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?w=300", rarity: "Эпический", rarityClass: "rarity-epic", price: 18000000, income: 15000 },
-                    { name: "BMW M5 F90 Comp", img: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=300", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 45000000, income: 42000 },
-                    { name: "Porsche 911 GT3 RS", img: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=300", rarity: "Мифический", rarityClass: "rarity-mythic", price: 95000000, income: 95000 }
-                ]
-            },
-            {
-                id: 'japan', name: 'Контейнер Японии', flag: '🇯🇵', desc: 'JDM легенды и турбо-моторы', costEn: 10, costRub: 80000, img: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=300', featured: false,
-                cars: [
-                    { name: "Toyota Corolla JDM", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 650000, income: 550 },
-                    { name: "Subaru Impreza WRX", img: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 2100000, income: 1800 },
-                    { name: "Nissan Skyline GT-R R34", img: "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=300", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 42000000, income: 40000 },
-                    { name: "Toyota Supra A80", img: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=300", rarity: "Мифический", rarityClass: "rarity-mythic", price: 88000000, income: 85000 }
-                ]
-            },
-            {
-                id: 'china', name: 'Контейнер Китая', flag: '🇨🇳', desc: 'Электрокары и инновации', costEn: 6, costRub: 45000, img: 'https://images.unsplash.com/photo-1563720223185-11003d516935?w=300', featured: false,
-                cars: [
-                    { name: "Chery Tiggo 7 Pro", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 1250000, income: 1000 },
-                    { name: "Geely Monjaro", img: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 3400000, income: 3000 },
-                    { name: "Zeekr 001 FR", img: "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=300", rarity: "Эпический", rarityClass: "rarity-epic", price: 12500000, income: 10500 },
-                    { name: "Yangwang U8", img: "https://images.unsplash.com/photo-1563720223185-11003d516935?w=300", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 32000000, income: 30000 }
-                ]
-            },
-            {
-                id: 'korea', name: 'Контейнер Кореи', flag: '🇰🇷', desc: 'Корейский комфорт и стиль', costEn: 7, costRub: 50000, img: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c351?w=300', featured: false,
-                cars: [
-                    { name: "Hyundai Solaris", img: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 750000, income: 600 },
-                    { name: "Kia K5 GT-Line", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 2600000, income: 2200 },
-                    { name: "Genesis G90", img: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=300", rarity: "Эпический", rarityClass: "rarity-epic", price: 11000000, income: 9500 }
-                ]
-            },
-            {
-                id: 'italy', name: 'Контейнер Италии', flag: '🇮🇹', desc: 'Суперкары и страсть', costEn: 15, costRub: 150000, img: 'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=300', featured: true,
-                cars: [
-                    { name: "Alfa Romeo Giulia", img: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 3500000, income: 3100 },
-                    { name: "Ferrari F8 Tributo", img: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=300", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 65000000, income: 60000 },
-                    { name: "Lamborghini Aventador", img: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=300", rarity: "Мифический", rarityClass: "rarity-mythic", price: 110000000, income: 110000 }
-                ]
-            },
-            {
-                id: 'uae', name: 'Контейнер ОАЭ', flag: '🇦🇪', desc: 'Гиперкары шейхов Дубая', costEn: 20, costRub: 250000, img: 'https://images.unsplash.com/photo-1563720223185-11003d516935?w=300', featured: true,
-                cars: [
-                    { name: "Nissan Patrol VIP", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 5500000, income: 5000 },
-                    { name: "Bugatti Chiron", img: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=300", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 120000000, income: 120000 },
-                    { name: "Devel Sixteen", img: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=300", rarity: "Мифический", rarityClass: "rarity-mythic", price: 200000000, income: 200000 }
-                ]
-            },
-            {
-                id: 'uk', name: 'Контейнер Британии', flag: '🇬🇧', desc: 'Британская роскошь', costEn: 14, costRub: 120000, img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=300', featured: false,
-                cars: [
-                    { name: "Mini Cooper S", img: "https://images.unsplash.com/photo-1541899481282-d53bffe3c351?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 1200000, income: 1000 },
-                    { name: "Range Rover", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300", rarity: "Эпический", rarityClass: "rarity-epic", price: 22000000, income: 19000 },
-                    { name: "Rolls-Royce Phantom", img: "https://images.unsplash.com/photo-1563720223185-11003d516935?w=300", rarity: "Мифический", rarityClass: "rarity-mythic", price: 90000000, income: 90000 }
-                ]
-            },
-            {
-                id: 'france', name: 'Контейнер Франции', flag: '🇫🇷', desc: 'Французский шарм', costEn: 9, costRub: 70000, img: 'https://images.unsplash.com/photo-1526726538690-5cbf956ae2fd?w=300', featured: false,
-                cars: [
-                    { name: "Renault Logan", img: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 400000, income: 350 },
-                    { name: "Peugeot 508 GT", img: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 2400000, income: 2000 },
-                    { name: "Alpine A110 R", img: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=300", rarity: "Эпический", rarityClass: "rarity-epic", price: 13500000, income: 11500 }
-                ]
-            },
-            {
-                id: 'cis', name: 'Контейнер СНГ', flag: '🇷🇺', desc: 'Родные легенды и тюнинг', costEn: 5, costRub: 30000, img: 'https://images.unsplash.com/photo-1526726538690-5cbf956ae2fd?w=300', featured: false,
-                cars: [
-                    { name: "ВАЗ-2107", img: "https://images.unsplash.com/photo-1526726538690-5cbf956ae2fd?w=300", rarity: "Обычный", rarityClass: "rarity-common", price: 220000, income: 200 },
-                    { name: "Lada Niva", img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=300", rarity: "Редкий", rarityClass: "rarity-rare", price: 1200000, income: 1100 },
-                    { name: "Aurus Senat", img: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=300", rarity: "Легендарный", rarityClass: "rarity-legendary", price: 55000000, income: 50000 }
-                ]
-            }
-        ];
-
-        function saveState() {
-            localStorage.setItem('gaa_energy', energy);
-            localStorage.setItem('gaa_money', money);
-            localStorage.setItem('gaa_garage', JSON.stringify(garage));
-            localStorage.setItem('gaa_daily', lastDaily);
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
-        function renderContainers(filter = 'all') {
-            const grid = document.getElementById('containersGrid');
-            let filtered = containersData;
-            if (filter !== 'all') {
-                filtered = containersData.filter(c => c.id === filter);
-            }
+        // Игровое состояние
+        let money = 800;
+        let tScore = 0;
+        let ctScore = 0;
+        let playerWeapon = 'usp';
+        let ammo = 12;
+        let reserveAmmo = 24;
+        let maxAmmo = 12;
 
-            grid.innerHTML = filtered.map(c => `
-                <div class="container-card ${c.featured ? 'featured' : ''}" onclick="openContainer('${c.id}')">
-                    <div class="container-info">
-                        <h3>${c.flag} ${c.name}</h3>
-                        <p>${c.desc}</p>
-                        <div class="container-price-tag">⚡ ${c.costEn} / ${c.costRub.toLocaleString()} ₽</div>
-                    </div>
-                    <img src="${c.img}" class="container-img" alt="Container">
-                </div>
-            `).join('');
-        }
+        const weapons = {
+            usp: { damage: 25, fireRate: 350, reloadTime: 1800, maxClip: 12, range: 400 },
+            mp5: { damage: 18, fireRate: 120, reloadTime: 2200, maxClip: 30, range: 450 },
+            ak47: { damage: 38, fireRate: 180, reloadTime: 2500, maxClip: 30, range: 600 },
+            awp: { damage: 110, fireRate: 1200, reloadTime: 3000, maxClip: 10, range: 800 }
+        };
 
-        function filterRegion(region, element) {
-            document.querySelectorAll('.country-chip').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
-            renderContainers(region);
-        }
+        let player = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            radius: 16,
+            speed: 3.5,
+            angle: 0,
+            health: 100,
+            team: 'CT'
+        };
 
-        function openContainer(containerId) {
-            const container = containersData.find(c => c.id === containerId);
-            if (!container) return;
+        let bullets = [];
+        let enemies = [];
+        let lastShotTime = 0;
+        let isFiring = false;
 
-            if (energy < container.costEn && money < container.costRub) {
-                alert("Недостаточно энергии и средств!");
-                return;
-            }
-
-            if (energy >= container.costEn) {
-                energy -= container.costEn;
-            } else {
-                money -= container.costRub;
-            }
-
-            if (garage.length >= 500) {
-                alert("Гараж заполнен (максимум 500 машин)!");
-                saveState();
-                updateUI();
-                return;
-            }
-
-            saveState();
-            updateUI();
-
-            const pool = container.cars;
-            const rand = Math.random() * 100;
-            let car;
-            if (rand < 62) car = pool[0];
-            else if (rand < 86) car = pool[1] || pool[0];
-            else if (rand < 95) car = pool[2] || pool[1];
-            else if (rand < 98.8) car = pool[3] || pool[2];
-            else car = pool[pool.length - 1];
-
-            wonCar = { ...car, id: Date.now() };
-
-            const overlay = document.getElementById('gachaOverlay');
-            const track = document.getElementById('rouletteTrack');
-            const winDetails = document.getElementById('winDetails');
-            const statusTitle = document.getElementById('gachaStatusTitle');
-            const windowEl = document.getElementById('rouletteWindow');
-
-            winDetails.style.display = 'none';
-            windowEl.style.display = 'flex';
-            statusTitle.innerText = '🎰 КАЗИНО КРУТИТ БАРАБАНЫ...';
-            overlay.style.display = 'flex';
-
-            let itemsHTML = '';
-            let winningIndex = 22;
-            for (let i = 0; i < 30; i++) {
-                let randomCar = (i === winningIndex) ? wonCar : pool[Math.floor(Math.random() * pool.length)];
-                itemsHTML += `
-                    <div class="roulette-item">
-                        <img src="${randomCar.img}" alt="car">
-                        <span>${randomCar.name}</span>
-                    </div>
-                `;
-            }
-            track.innerHTML = itemsHTML;
-            track.style.transition = 'none';
-            track.style.transform = 'translateX(0px)';
-
-            setTimeout(() => {
-                track.style.transition = 'transform 3.5s cubic-bezier(0.06, 0.84, 0.12, 1)';
-                let offset = -(winningIndex * 137) + 130;
-                track.style.transform = `translateX(${offset}px)`;
-            }, 50);
-
-            setTimeout(() => {
-                windowEl.style.display = 'none';
-                statusTitle.innerText = '🔥 ДЖЕКПОТ! ЛОТ ВЫИГРАН!';
-                
-                document.getElementById('modalRarity').innerText = wonCar.rarity;
-                document.getElementById('modalRarity').className = 'win-rarity ' + wonCar.rarityClass;
-                document.getElementById('modalImg').src = wonCar.img;
-                document.getElementById('modalCarName').innerText = wonCar.name;
-                document.getElementById('modalPrice').innerText = `Рыночная цена: +${wonCar.price.toLocaleString()} ₽`;
-                
-                winDetails.style.display = 'flex';
-            }, 3650);
-        }
-
-        function closeGachaModal() {
-            document.getElementById('gachaOverlay').style.display = 'none';
-            if (wonCar) {
-                garage.push(wonCar);
-                wonCar = null;
-                saveState();
-                renderGarage();
-                updateUI();
+        // Инициализация ботов (Террористов)
+        function spawnBots() {
+            enemies = [];
+            for (let i = 0; i < 4; i++) {
+                enemies.initSpawn = true;
+                enemies.push({
+                    x: Math.random() * (canvas.width - 100) + 50,
+                    y: Math.random() * 200 + 50,
+                    radius: 16,
+                    health: 100,
+                    speed: 1.8,
+                    angle: 0,
+                    team: 'T'
+                });
             }
         }
+        spawnBots();
 
-        function renderGarage() {
-            const list = document.getElementById('garageList');
-            document.getElementById('garageCount').innerText = garage.length;
+        // Управление джойстиком
+        let joystickActive = false;
+        let moveVector = { x: 0, y: 0 };
+        const jBase = document.getElementById('joystickBase');
+        const jKnob = document.getElementById('joystickKnob');
 
-            let totalIncome = garage.reduce((sum, car) => sum + car.income, 0);
-            document.getElementById('passiveIncome').innerText = totalIncome;
+        jBase.addEventListener('pointerdown', (e) => {
+            joystickActive = true;
+            updateJoystick(e);
+        });
 
-            if (garage.length === 0) {
-                list.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 40px; font-size: 13px;">Гараж пуст!</p>`;
-                return;
-            }
+        window.addEventListener('pointermove', (e) => {
+            if (joystickActive) updateJoystick(e);
+        });
 
-            list.innerHTML = garage.map(item => `
-                <div class="item-row">
-                    <div class="item-info">
-                        <img src="${item.img}" class="item-thumb" alt="car">
-                        <div class="item-details">
-                            <h4>${item.name}</h4>
-                            <p class="${item.rarityClass}">${item.rarity} · ${item.price.toLocaleString()} ₽ (+${item.income} ₽/м)</p>
-                        </div>
-                    </div>
-                    <button class="action-sm-btn" onclick="sellCar(${item.id})">Продать</button>
-                </div>
-            `).join('');
+        window.addEventListener('pointerup', () => {
+            joystickActive = false;
+            moveVector = { x: 0, y: 0 };
+            jKnob.style.transform = `translate(0px, 0px)`;
+        });
+
+        function updateJoystick(e) {
+            const rect = jBase.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const dx = e.clientX - centerX;
+            const dy = e.clientY - centerY;
+            const dist = Math.hypot(dx, dy);
+            const maxDist = 40;
+
+            const angle = Math.atan2(dy, dx);
+            const clampedDist = Math.min(dist, maxDist);
+
+            moveVector.x = Math.cos(angle) * (clampedDist / maxDist);
+            moveVector.y = Math.sin(angle) * (clampedDist / maxDist);
+
+            jKnob.style.transform = `translate(${Math.cos(angle)*clampedDist}px, ${Math.sin(angle)*clampedDist}px)`;
         }
 
-        function sellCar(id) {
-            const car = garage.find(i => i.id === id);
-            if (car) {
-                money += Math.floor(car.price * 0.75);
-                garage = garage.filter(i => i.id !== id);
-                saveState();
-                renderGarage();
-                updateUI();
-            }
-        }
+        // Стрельба
+        const fireBtn = document.getElementById('fireBtn');
+        fireBtn.addEventListener('pointerdown', () => { isFiring = true; });
+        fireBtn.addEventListener('pointerup', () => { isFiring = false; });
+        fireBtn.addEventListener('pointerleave', () => { isFiring = false; });
 
-        function claimDaily() {
+        function shoot() {
             const now = Date.now();
-            if (now - lastDaily < 86400000) {
-                alert("Доступно 1 раз в 24 часа!");
+            const w = weapons[playerWeapon];
+            if (now - lastShotTime < w.fireRate) return;
+            if (ammo <= 0) {
+                reloadWeapon();
                 return;
             }
-            lastDaily = now;
-            energy = Math.min(maxEnergy, energy + 30);
-            money += 300000;
-            saveState();
-            updateUI();
-            alert("🎁 Бонус получен!");
+
+            ammo--;
+            lastShotTime = now;
+            updateHUD();
+
+            // Создаем пулю с разбросом
+            const spread = (Math.random() - 0.5) * 0.08;
+            bullets.push({
+                x: player.x + Math.cos(player.angle) * 20,
+                y: player.y + Math.sin(player.angle) * 20,
+                vx: Math.cos(player.angle + spread) * 12,
+                vy: Math.sin(player.angle + spread) * 12,
+                damage: w.damage,
+                range: w.range,
+                traveled: 0,
+                team: 'CT'
+            });
         }
 
-        function updateUI() {
-            document.getElementById('energyText').innerText = `${energy}/${maxEnergy}`;
-            document.getElementById('moneyText').innerText = money.toLocaleString();
-            let netWorth = money + garage.reduce((sum, c) => sum + c.price, 0);
-            document.getElementById('topNetWorth').innerText = netWorth.toLocaleString();
-            let lvl = Math.floor(garage.length / 3) + 1;
-            document.getElementById('lvlNum').innerText = lvl;
+        function reloadWeapon() {
+            if (reserveAmmo <= 0 || ammo >= weapons[playerWeapon].maxClip) return;
+            setTimeout(() => {
+                let needed = weapons[playerWeapon].maxClip - ammo;
+                let take = Math.min(needed, reserveAmmo);
+                ammo += take;
+                reserveAmmo -= take;
+                updateHUD();
+            }, weapons[playerWeapon].reloadTime);
         }
 
-        setInterval(() => {
-            if (garage.length > 0) {
-                let totalIncomeSec = garage.reduce((sum, car) => sum + car.income, 0) / 12;
-                money += Math.floor(totalIncomeSec);
-                saveState();
-                updateUI();
+        function toggleBuyMenu() {
+            const menu = document.getElementById('buyMenu');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function buyWeapon(wName, cost) {
+            if (money >= cost) {
+                money -= cost;
+                playerWeapon = wName;
+                ammo = weapons[wName].maxClip;
+                reserveAmmo = weapons[wName].maxClip * 3;
+                updateHUD();
+                toggleBuyMenu();
+            } else {
+                alert("Недостаточно денег!");
             }
-        }, 5000);
-
-        setInterval(() => {
-            if (energy < maxEnergy) {
-                energy += 1;
-                saveState();
-                updateUI();
-            }
-        }, 80000);
-
-        function switchTab(tabName, btnElement) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-
-            document.getElementById('tab-' + tabName).classList.add('active');
-            btnElement.classList.add('active');
         }
 
-        renderContainers();
-        renderGarage();
-        updateUI();
+        function updateHUD() {
+            document.getElementById('playerMoney').innerText = `$${money}`;
+            document.getElementById('ammoText').innerText = `${ammo} / ${reserveAmmo}`;
+            document.getElementById('tScore').innerText = tScore;
+            document.getElementById('ctScore').innerText = ctScore;
+        }
+
+        // Основной игровой цикл
+        function update() {
+            // Движение игрока
+            player.x += moveVector.x * player.speed;
+            player.y += moveVector.y * player.speed;
+
+            // Ограничение границами карты (De_dust стиль стен)
+            player.x = Math.max(20, Math.min(canvas.width - 20, player.x));
+            player.y = Math.max(20, Math.min(canvas.height - 20, player.y));
+
+            // Поворот в сторону ближайшего врага или по движению
+            if (enemies.length > 0) {
+                let target = enemies[0];
+                player.angle = Math.atan2(target.y - player.y, target.x - player.x);
+            }
+
+            if (isFiring) {
+                shoot();
+            }
+
+            // Обновление пуль
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                let b = bullets[i];
+                b.x += b.vx;
+                b.y += b.vy;
+                b.traveled += Math.hypot(b.vx, b.vy);
+
+                if (b.traveled > b.range || b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
+                    bullets.splice(i, 1);
+                    continue;
+                }
+
+                // Проверка попадания в ботов
+                if (b.team === 'CT') {
+                    for (let j = enemies.length - 1; j >= 0; j--) {
+                        let en = enemies[j];
+                        if (Math.hypot(b.x - en.x, b.y - en.y) < en.radius) {
+                            en.health -= b.damage;
+                            bullets.splice(i, 1);
+                            if (en.health <= 0) {
+                                enemies.splice(j, 1);
+                                money += 300;
+                                if (enemies.length === 0) {
+                                    ctScore++;
+                                    money += 3200;
+                                    setTimeout(spawnBots, 2000);
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // ИИ ботов (движение к игроку)
+            enemies.forEach(en => {
+                let angleToPlayer = Math.atan2(player.y - en.y, player.x - en.x);
+                en.x += Math.cos(angleToPlayer) * en.speed;
+                en.y += Math.sin(angleToPlayer) * en.speed;
+
+                // Урон игроку при контакте
+                if (Math.hypot(player.x - en.x, player.y - en.y) < player.radius + en.radius) {
+                    player.health -= 0.5;
+                    if (player.health <= 0) {
+                        player.health = 100;
+                        money = Math.max(400, money - 1500);
+                        tScore++;
+                        player.x = canvas.width / 2;
+                        player.y = canvas.height / 2;
+                    }
+                }
+            });
+        }
+
+        function draw() {
+            ctx.fillStyle = '#1e1e24';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Отрисовка тактической сетки карты (Dust2 floor style)
+            ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 40) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 40) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+            }
+
+            // Отрисовка пуль
+            ctx.fillStyle = '#f1c40f';
+            bullets.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Отрисовка Террористов (Ботов)
+            enemies.forEach(en => {
+                ctx.save();
+                ctx.translate(en.x, en.y);
+                ctx.fillStyle = '#e74c3c'; // Красные (Terrorists)
+                ctx.beginPath();
+                ctx.arc(0, 0, en.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#c0392b';
+                ctx.stroke();
+                ctx.restore();
+            });
+
+            // Отрисовка игрока (Counter-Terrorist)
+            ctx.save();
+            ctx.translate(player.x, player.y);
+            ctx.rotate(player.angle);
+            
+            // Тело CT
+            ctx.fillStyle = '#3498db';
+            ctx.beginPath();
+            ctx.arc(0, 0, player.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#2980b9';
+            ctx.stroke();
+
+            // Ствол оружия
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, -4, 22, 8);
+
+            ctx.restore();
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        updateHUD();
+        loop();
 
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.ready();
